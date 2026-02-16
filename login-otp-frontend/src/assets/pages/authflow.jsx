@@ -5,97 +5,196 @@ export default function AuthFlow() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const nextStep = () => {
-    setStep(step + 1);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setStep(step + 1);
+      setIsAnimating(false);
+    }, 300);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700">
-      <div className="bg-white w-96 p-8 rounded-2xl shadow-xl">
+    <div className="auth-container">
+      {/* Animated background */}
+      <div className="bg-gradient"></div>
+      <div className="bg-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
+      </div>
 
-        {/* STEP 1 - EMAIL */}
-        {step === 1 && (
-          <>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Iniciar Sesión
-            </h2>
+      {/* Main card */}
+      <div className={`auth-card ${isAnimating ? 'transitioning' : ''}`}>
+        
+        {/* Progress indicator */}
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${(step / 4) * 100}%` }}></div>
+        </div>
 
-            <input
-              type="email"
-              placeholder="Ingresa tu correo"
-              className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        {/* Step indicators */}
+        <div className="step-indicators">
+          {[1, 2, 3, 4].map((num) => (
+            <div key={num} className={`indicator ${step >= num ? 'active' : ''} ${step === num ? 'current' : ''}`}>
+              <span>{num}</span>
+            </div>
+          ))}
+        </div>
 
-            <button
-              onClick={nextStep}
-              className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Enviar Código
-            </button>
-          </>
-        )}
+        {/* Content area */}
+        <div className="content-area">
+          {/* STEP 1 - EMAIL */}
+          {step === 1 && (
+            <div className="step-content fade-in">
+              <div className="icon-wrapper">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              
+              <h2 className="step-title">Bienvenido</h2>
+              <p className="step-description">
+                Ingresa tu correo electrónico para comenzar
+              </p>
 
-        {/* STEP 2 - OTP */}
-        {step === 2 && (
-          <>
-            <h2 className="text-2xl font-bold mb-2 text-center">
-              Verificación OTP
-            </h2>
+              <div className="input-group">
+                <label>Correo electrónico</label>
+                <input
+                  type="email"
+                  placeholder="tu@email.com"
+                  className="input-field"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoFocus
+                />
+              </div>
 
-            <p className="text-sm text-gray-500 text-center mb-6">
-              Enviamos un código a {email}
-            </p>
+              <button onClick={nextStep} className="btn-primary">
+                <span>Continuar</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          )}
 
-            <OtpInput />
+          {/* STEP 2 - OTP */}
+          {step === 2 && (
+            <div className="step-content fade-in">
+              <div className="icon-wrapper">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
 
-            <button
-              onClick={nextStep}
-              className="w-full mt-6 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Validar Código
-            </button>
-          </>
-        )}
+              <h2 className="step-title">Verificación</h2>
+              <p className="step-description">
+                Enviamos un código de 6 dígitos a<br/>
+                <strong>{email}</strong>
+              </p>
 
-        {/* STEP 3 - PASSWORD */}
-        {step === 3 && (
-          <>
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Crear Contraseña
-            </h2>
+              <div className="otp-container">
+                <OtpInput />
+              </div>
 
-            <input
-              type="password"
-              placeholder="Nueva contraseña"
-              className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+              <button onClick={nextStep} className="btn-primary">
+                <span>Verificar código</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
 
-            <button
-              onClick={nextStep}
-              className="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition"
-            >
-              Guardar y Continuar
-            </button>
-          </>
-        )}
+              <button className="btn-link">Reenviar código</button>
+            </div>
+          )}
 
-        {/* STEP 4 - BIENVENIDA */}
-        {step === 4 && (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-green-600 mb-4">
-              🎉 Bienvenido
-            </h2>
-            <p className="text-gray-600">
-              Tu cuenta ha sido creada correctamente.
-            </p>
-          </div>
-        )}
+          {/* STEP 3 - PASSWORD */}
+          {step === 3 && (
+            <div className="step-content fade-in">
+              <div className="icon-wrapper">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2a5 5 0 0 0-5 5v3H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2V7a5 5 0 0 0-5-5z"/>
+                  <circle cx="12" cy="16" r="1"/>
+                </svg>
+              </div>
 
+              <h2 className="step-title">Crear contraseña</h2>
+              <p className="step-description">
+                Elige una contraseña segura para tu cuenta
+              </p>
+
+              <div className="input-group">
+                <label>Nueva contraseña</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="input-field"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <div className="password-requirements">
+                <div className="requirement">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>Mínimo 8 caracteres</span>
+                </div>
+                <div className="requirement">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>Una mayúscula</span>
+                </div>
+                <div className="requirement">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>Un número</span>
+                </div>
+              </div>
+
+              <button onClick={nextStep} className="btn-primary btn-success">
+                <span>Crear cuenta</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* STEP 4 - SUCCESS */}
+          {step === 4 && (
+            <div className="step-content fade-in success-screen">
+              <div className="success-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+
+              <h2 className="step-title">¡Todo listo!</h2>
+              <p className="step-description">
+                Tu cuenta ha sido creada exitosamente.<br/>
+                Bienvenido a bordo.
+              </p>
+
+              <button className="btn-primary btn-wide">
+                <span>Comenzar</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="card-footer">
+          <p>¿Necesitas ayuda? <a href="#">Contacta soporte</a></p>
+        </div>
       </div>
     </div>
   );
