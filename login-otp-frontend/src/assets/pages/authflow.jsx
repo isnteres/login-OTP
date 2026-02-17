@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import OtpInput from "../../components/OtpInput";
 import { authService } from "../../services/authService";
 
 export default function AuthFlow() {
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -419,8 +421,11 @@ export default function AuthFlow() {
                 Bienvenido a bordo.
               </p>
 
-              <button className="btn-primary btn-wide">
-                <span>Comenzar</span>
+              <button 
+                className="btn-primary btn-wide"
+                onClick={() => navigate("/dashboard")}
+              >
+              <span>Comenzar</span>
               </button>
             </div>
           )}
