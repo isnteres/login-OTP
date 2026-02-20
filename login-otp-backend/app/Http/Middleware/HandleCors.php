@@ -18,7 +18,7 @@ class HandleCors
         // Manejar preflight OPTIONS request
         if ($request->getMethod() === "OPTIONS") {
             return response('', 200)
-                ->header('Access-Control-Allow-Origin', 'http://localhost:5174')  // ← CAMBIO AQUÍ
+                ->header('Access-Control-Allow-Origin', 'http://localhost:5173')  // ← CAMBIO AQUÍ
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With')
                 ->header('Access-Control-Allow-Credentials', 'true');
@@ -28,7 +28,7 @@ class HandleCors
 
         // Agregar headers CORS a todas las respuestas
         return $response
-            ->header('Access-Control-Allow-Origin', 'http://localhost:5174')  // ← CAMBIO AQUÍ
+            ->header('Access-Control-Allow-Origin', 'http://localhost:5173')  // ← CAMBIO AQUÍ
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With')
             ->header('Access-Control-Allow-Credentials', 'true');

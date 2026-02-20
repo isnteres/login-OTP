@@ -69,7 +69,7 @@ export default function OtpInput({ value = "", onChange, disabled = false }) {
         <input
           key={index}
           ref={(el) => (inputRefs.current[index] = el)}
-          type="text"
+          type="password"
           inputMode="numeric"
           maxLength={1}
           value={digit}
@@ -103,3 +103,33 @@ export default function OtpInput({ value = "", onChange, disabled = false }) {
     </div>
   );
 }
+
+const handleKeyDown = (index, e) => {
+  if (disabled) return;
+
+  // Enter: submit del formulario
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const form = inputRefs.current[0]?.closest("form");
+    if (form) {
+      form.requestSubmit();
+    } else {
+      // Buscar el botón primary más cercano y clickearlo
+      const btn = document.querySelector(".btn-primary:not([disabled])");
+      if (btn) btn.click();
+    }
+  }
+
+  // Backspace: volver al input anterior
+  if (e.key === "Backspace" && !otp[index] && index > 0) {
+    inputRefs.current[index - 1]?.focus();
+  }
+
+  // Borrar el valor actual con backspace
+  if (e.key === "Backspace" && otp[index]) {
+    const newOtp = [...otp];
+    newOtp[index] = "";
+    setOtp(newOtp);
+    onChange(newOtp.join(""));
+  }
+};

@@ -59,7 +59,12 @@ export default function Dashboard() {
           </p>
 
           {/* Botones */}
-          <div style={{ display: "flex", gap: "12px", flexDirection: "column" }}>
+          <div
+            style={{ display: "flex", gap: "12px", flexDirection: "column" }}
+          >
+            <button onClick={() => navigate("/audit")} className="btn-primary">
+              🛡️ Panel de Auditoría
+            </button>
 
             <button
               onClick={handleLogout}

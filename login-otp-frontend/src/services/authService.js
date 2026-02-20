@@ -1,75 +1,42 @@
 const API_URL = "http://localhost:8000/api";
 
+// Helper para no repetir fetch en cada método
+const post = async (endpoint, body) => {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error en la solicitud");
+  }
+
+  return data;
+};
+
 export const authService = {
-  // Enviar OTP
-  sendOtp: async (email) => {
-    try {
-      const response = await fetch(`${API_URL}/send-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+  // =====================
+  //       REGISTRO
+  // =====================
+  registerSendOtp: (email) => post("/register/send-otp", { email }),
 
-      const data = await response.json();
+  registerVerifyOtp: (email, otp) =>
+    post("/register/verify-otp", { email, otp }),
 
-      if (!response.ok) {
-        throw new Error(data.message || "Error al enviar OTP");
-      }
+  registerCreatePassword: (email, password) =>
+    post("/register/create-password", { email, password }),
 
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  // =====================
+  //        LOGIN
+  // =====================
+  loginCredentials: (email, password) =>
+    post("/login/credentials", { email, password }),
 
-  // Verificar OTP
-  verifyOtp: async (email, otp) => {
-    try {
-      const response = await fetch(`${API_URL}/verify-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "OTP inválido");
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  // Crear contraseña
-  createPassword: async (email, password) => {
-    try {
-      const response = await fetch(`${API_URL}/create-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error al crear contraseña");
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  loginVerifyOtp: (email, otp) => post("/login/verify-otp", { email, otp }),
 };
