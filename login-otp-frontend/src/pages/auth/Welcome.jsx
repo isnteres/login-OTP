@@ -29,21 +29,10 @@ export default function Welcome() {
             </div>
 
             <h2 className="step-title">Bienvenido</h2>
-            <p className="step-description">¿Qué deseas hacer hoy?</p>
+            <p className="step-description">Inicia sesión para continuar</p>
 
             <button className="btn-primary" onClick={() => navigate("/login")}>
               <span>Iniciar sesión</span>
-            </button>
-
-            <button
-              className="btn-primary"
-              onClick={() => navigate("/register")}
-              style={{
-                marginTop: "12px",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              }}
-            >
-              <span>Crear cuenta</span>
             </button>
           </div>
         </div>
