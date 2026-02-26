@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Agregar middleware CORS personalizado
+        // 1. Permite que el frontend maneje estados y cookies de sesión
+        $middleware->statefulApi();
+
+        // 2. Registra el middleware para el manejo de CORS
         $middleware->use([
             \App\Http\Middleware\HandleCors::class,
         ]);
