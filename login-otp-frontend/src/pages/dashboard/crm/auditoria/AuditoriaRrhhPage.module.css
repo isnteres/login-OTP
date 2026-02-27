@@ -1,0 +1,228 @@
+.page {
+  padding: 22px 26px;
+  font-family: "DM Sans", sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.title {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  color: #f59e0b;
+  display: flex;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  margin-top: 3px;
+  margin-bottom: 0;
+}
+
+.btnExport {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: "DM Sans", sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btnExport:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Stats */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.statTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.statIcon {
+  color: rgba(255, 255, 255, 0.3);
+  display: flex;
+}
+
+.statLabel {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.statValue {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.statSub {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  margin: 0;
+}
+
+/* Tabla */
+.tableBox {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tableTitle {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.tableSubtitle {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  margin: 0 0 12px;
+}
+
+.searchWrapper {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 10px 8px 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+  font-size: 12px;
+  font-family: "DM Sans", sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.th {
+  padding: 10px 14px;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.12s;
+}
+
+.row[data-odd="true"] {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.td {
+  padding: 11px 14px;
+  font-size: 12px;
+  color: white;
+}
+
+.muted {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.faint {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.simBadge {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.21);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.emptyCell {
+  padding: 48px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+}

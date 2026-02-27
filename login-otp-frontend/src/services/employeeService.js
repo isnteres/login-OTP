@@ -14,10 +14,9 @@ const request = async (method, endpoint, body) => {
   return data
 }
 
-const post = (endpoint, body) => request("POST", endpoint, body)
-
-export const authService = {
-  loginCredentials:  (email, password) => post("/login/credentials",  { email, password }),
-  loginVerifyOtp:    (email, otp)      => post("/login/verify-otp",   { email, otp }),
-  changePassword:    (email, newPassword) => post("/auth/change-password", { email, newPassword }),
+export const employeeService = {
+  getAll: ()           => request("GET",  "/employees"),
+  create: (data)       => request("POST", "/employees", data),
+  update: (id, data)   => request("PUT",  `/employees/${id}`, data),
+  remove: (id)         => request("DELETE", `/employees/${id}`),
 }
