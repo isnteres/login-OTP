@@ -18,18 +18,18 @@ import { authService } from "../../services/authService"
 export default function LoginFlow() {
   const navigate = useNavigate()
 
-  const [step, setStep]           = useState("credentials")
-  const [email, setEmail]         = useState("")
-  const [password, setPassword]   = useState("")
-  const [otp, setOtp]             = useState("")
+  const [step, setStep] = useState("credentials")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [otp, setOtp] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError]         = useState("")
+  const [error, setError] = useState("")
 
   // ── Step 1: credenciales ────────────────────────────────────────────────────
   const handleCredentials = async () => {
     setError("")
     if (!email || !email.includes("@")) { setError("Por favor ingresa un correo válido"); return }
-    if (!password)                       { setError("Por favor ingresa tu contraseña");   return }
+    if (!password) { setError("Por favor ingresa tu contraseña"); return }
 
     try {
       setIsLoading(true)
@@ -53,7 +53,12 @@ export default function LoginFlow() {
 
     try {
       setIsLoading(true)
-      await authService.loginVerifyOtp(email, otp)
+      const res = await authService.loginVerifyOtp(email, otp)
+
+      if (res.token) {
+        localStorage.setItem("auth_token", res.token)
+      }
+
       navigate("/dashboard")
     } catch (err) {
       setError(err.message || "Código incorrecto. Intenta de nuevo.")

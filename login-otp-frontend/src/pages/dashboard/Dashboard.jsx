@@ -4,11 +4,11 @@ import DashboardLayout from "./DashboardLayout"
 import ChangePasswordModal from "../../components/ui/ChangePasswordModal"
 
 export default function Dashboard() {
-  const navigate  = useNavigate()
-  const location  = useLocation()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const mustChange = location.state?.mustChangePassword === true
-  const userEmail  = location.state?.userEmail || ""
+  const userEmail = location.state?.userEmail || ""
 
   const [showChangeModal, setShowChangeModal] = useState(mustChange)
 
@@ -19,7 +19,10 @@ export default function Dashboard() {
 
   return (
     <>
-      <DashboardLayout onLogout={() => navigate("/")} />
+      <DashboardLayout onLogout={() => {
+        localStorage.removeItem("auth_token")
+        navigate("/")
+      }} />
 
       {/* Modal bloqueante de cambio de contraseña */}
       {showChangeModal && (

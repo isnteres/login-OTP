@@ -1,18 +1,21 @@
 import { useState } from "react"
 import { FiDownload, FiUserPlus } from "react-icons/fi"
-import RrhhTabs        from "../../../../components/ui/RrhhTabs"
-import PersonalStats   from "./components/PersonalStats"
+import RrhhTabs from "../../../../components/ui/RrhhTabs"
+import PersonalStats from "./components/PersonalStats"
 import PersonalFilters from "./components/PersonalFilters"
 import PersonalGallery from "./components/PersonalGallery"
-import PersonalTable   from "./components/PersonalTable"
+import PersonalTable from "./components/PersonalTable"
 import AddEmployeeModal from "./components/AddEmployeeModal"
+import DebugPanel from "../../../../components/ui/DebugPanel"
+import { useEffect } from "react"
 import { ToastContainer, useToast } from "../../../../components/ui/Toast"
 import { usePersonal } from "./hooks/usePersonal"
 import styles from "./PersonalPage.module.css"
 
 export default function PersonalPage({ setActive }) {
-  const [viewTab, setViewTab]     = useState("gallery")
+  const [viewTab, setViewTab] = useState("gallery")
   const [showModal, setShowModal] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
   const { toasts, addToast, removeToast } = useToast()
 
   const {
@@ -30,10 +33,22 @@ export default function PersonalPage({ setActive }) {
       duration: 12000,
       message: {
         title: `Empleado creado exitosamente`,
-        body:  `Contraseña temporal: ${tempPassword} — Se ha enviado al correo ${employee.email}. Guarde esta información.`,
+        body: `Contraseña temporal: ${tempPassword} — Se ha enviado al correo ${employee.email}. Guarde esta información.`,
       },
     })
   }
+
+  // Atajo para diagnóstico: Ctrl + Shift + D
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault()
+        setShowDebug(prev => !prev)
+      }
+    }
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [])
 
   return (
     <>
@@ -65,7 +80,7 @@ export default function PersonalPage({ setActive }) {
         <div className={styles.viewTabs}>
           {[
             { id: "gallery", label: "Galería de Fotos" },
-            { id: "table",   label: "Tabla Detallada"  },
+            { id: "table", label: "Tabla Detallada" },
           ].map(t => (
             <button
               key={t.id}
@@ -80,8 +95,8 @@ export default function PersonalPage({ setActive }) {
         {/* Contenido */}
         <div className={styles.content}>
           <PersonalFilters
-            search={search}             setSearch={setSearch}
-            filterType={filterType}     setFilterType={setFilterType}
+            search={search} setSearch={setSearch}
+            filterType={filterType} setFilterType={setFilterType}
             filterStatus={filterStatus} setFilterStatus={setFilterStatus}
           />
 
@@ -89,7 +104,7 @@ export default function PersonalPage({ setActive }) {
             ? <p className={styles.loading}>Cargando...</p>
             : viewTab === "gallery"
               ? <PersonalGallery employees={employees} />
-              : <PersonalTable   employees={employees} />
+              : <PersonalTable employees={employees} />
           }
         </div>
 
@@ -97,6 +112,11 @@ export default function PersonalPage({ setActive }) {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onEmployeeCreated={handleEmployeeCreated}
+        />
+
+        <DebugPanel
+          isOpen={showDebug}
+          onClose={() => setShowDebug(false)}
         />
       </div>
     </>
