@@ -4,30 +4,15 @@ import { useAuditoriaRrhh } from "./hooks/useAuditoriaRrhh"
 import styles from "./AuditoriaRrhhPage.module.css"
 
 const STAT_CARDS = [
-  {
-    key:   "totalIntentos",
-    label: "Total de Intentos",
-    sub:   "Intentos de registro duplicado",
-    Icon:  FiAlertTriangle,
-  },
-  {
-    key:   "empleadosAfectados",
-    label: "Empleados Afectados",
-    sub:   "Empleados con intentos de duplicado",
-    Icon:  FiUser,
-  },
-  {
-    key:   "adminsInvolucrados",
-    label: "Admins Involucrados",
-    sub:   "Administradores que generaron intentos",
-    Icon:  FiUsers,
-  },
+  { key: "totalIntentos",      label: "Total de Intentos",    sub: "Intentos de alta duplicada",              Icon: FiAlertTriangle, color: "#f59e0b" },
+  { key: "empleadosAfectados", label: "Empleados Afectados",  sub: "Empleados con intentos de duplicado",     Icon: FiUser,          color: "#6366f1" },
+  { key: "adminsInvolucrados", label: "Admins Involucrados",  sub: "Administradores que generaron intentos",  Icon: FiUsers,         color: "#10b981" },
 ]
 
 const COLUMNS = ["Fecha y Hora", "Empleado Duplicado", "Correo del Empleado", "Admin Responsable"]
 
 export default function AuditoriaRrhhPage({ setActive }) {
-  const { registros, stats, loading, search, setSearch } = useAuditoriaRrhh()
+  const { duplicates = [], stats = {}, loading, search, setSearch } = useAuditoriaRrhh()
 
   return (
     <div className={styles.page}>
@@ -51,13 +36,13 @@ export default function AuditoriaRrhhPage({ setActive }) {
 
       {/* Stats */}
       <div className={styles.statsGrid}>
-        {STAT_CARDS.map(({ key, label, sub, Icon }) => (
+        {STAT_CARDS.map(({ key, label, sub, Icon, color }) => (
           <div key={key} className={styles.statCard}>
             <div className={styles.statTop}>
               <span className={styles.statIcon}><Icon size={16} /></span>
               <p className={styles.statLabel}>{label}</p>
             </div>
-            <p className={styles.statValue}>{stats[key]}</p>
+            <p className={styles.statValue}>{stats[key] ?? 0}</p>
             <p className={styles.statSub}>{sub}</p>
           </div>
         ))}
@@ -68,7 +53,7 @@ export default function AuditoriaRrhhPage({ setActive }) {
         <div className={styles.tableHeader}>
           <h2 className={styles.tableTitle}>Registro de Intentos</h2>
           <p className={styles.tableSubtitle}>
-            Historial de intentos de registro con datos de empleados ya existentes
+            Historial completo de intentos de alta con datos duplicados
           </p>
           <div className={styles.searchWrapper}>
             <FiSearch className={styles.searchIcon} size={12} />
@@ -93,37 +78,27 @@ export default function AuditoriaRrhhPage({ setActive }) {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={COLUMNS.length} className={styles.emptyCell}>Cargando...</td>
+                  <td colSpan="4" className={styles.emptyCell}>Cargando...</td>
                 </tr>
-              ) : registros.length === 0 ? (
+              ) : duplicates.length === 0 ? (
                 <tr>
-                  <td colSpan={COLUMNS.length} className={styles.emptyCell}>
-                    No hay intentos de registro duplicado
+                  <td colSpan="4" className={styles.emptyCell}>
+                    No hay intentos de duplicados registrados
                   </td>
                 </tr>
               ) : (
-                registros.map((r, i) => (
-                  <tr key={r.id} className={styles.row} data-odd={i % 2 !== 0}>
-                    {/* Fecha y hora */}
-                    <td className={`${styles.td} ${styles.muted}`} style={{ whiteSpace: "nowrap" }}>
-                      {new Date(r.fechaHora).toLocaleString("es-ES")}
-                    </td>
-
-                    {/* Empleado duplicado */}
-                    <td className={styles.td}>
-                      <span style={{ fontWeight: 500 }}>{r.empleadoDuplicado}</span>
-                    </td>
-
-                    {/* Correo del empleado que se intentó duplicar */}
+                duplicates.map((d, i) => (
+                  <tr key={d.id} className={styles.row} data-odd={i % 2 !== 0}>
                     <td className={`${styles.td} ${styles.muted}`}>
-                      {r.correoEmpleado}
+                      {new Date(d.fechaHora).toLocaleString("es-ES")}
                     </td>
-
-                    {/* Admin responsable: nombre + correo */}
+                    <td className={styles.td}>{d.empleadoDuplicado}</td>
+                    <td className={`${styles.td} ${styles.muted}`}>{d.correoEmpleado}</td>
                     <td className={styles.td}>
-                      <span style={{ fontWeight: 500 }}>{r.adminNombre}</span>
-                      <br />
-                      <span className={styles.faint} style={{ fontSize: "11px" }}>{r.adminCorreo}</span>
+                      <div>{d.adminNombre}</div>
+                      <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "2px" }}>
+                        {d.adminCorreo}
+                      </div>
                     </td>
                   </tr>
                 ))
