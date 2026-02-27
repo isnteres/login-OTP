@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react"
-import {
-  ANALYTICS_SUMMARY_MOCK,
-  TRAFFIC_CHART_MOCK,
-  TOP_PAGES_MOCK,
-  DEVICES_MOCK,
-} from "../../../../../mock/analytics.mock"
+import { analyticsService } from "../../../../../services/analyticsService"
 
 export function useAnalitica() {
   const [summary, setSummary]   = useState(null)
@@ -15,15 +10,21 @@ export function useAnalitica() {
   const [period, setPeriod]     = useState("7d")
 
   useEffect(() => {
-    setLoading(true)
-    const timer = setTimeout(() => {
-      setSummary(ANALYTICS_SUMMARY_MOCK)
-      setTraffic(TRAFFIC_CHART_MOCK)
-      setTopPages(TOP_PAGES_MOCK)
-      setDevices(DEVICES_MOCK)
-      setLoading(false)
-    }, 400)
-    return () => clearTimeout(timer)
+    const load = async () => {
+      try {
+        setLoading(true)
+        const data = await analyticsService.getAll(period)
+        setSummary(data.summary)
+        setTraffic(data.traffic)
+        setTopPages(data.topPages)
+        setDevices(data.devices)
+      } catch (err) {
+        console.error("Error cargando analítica:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [period])
 
   return { summary, traffic, topPages, devices, loading, period, setPeriod }

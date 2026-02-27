@@ -1,18 +1,25 @@
 import { useState, useEffect } from "react"
-import { AUDIT_LOGS_MOCK, AUDIT_SUMMARY_MOCK } from "../../../../../mock/auditLogs.mock"
+import { auditService } from "../../../../../services/auditService"
 
 export function useAuditoriaSistema() {
   const [logs, setLogs]       = useState([])
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchData = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setSummary(AUDIT_SUMMARY_MOCK)
-      setLogs(AUDIT_LOGS_MOCK)
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [summaryData, logsData] = await Promise.all([
+        auditService.getSummary(),
+        auditService.getLogs(),
+      ])
+      setSummary(summaryData)
+      setLogs(logsData.data)
+    } catch (err) {
+      console.error("Error cargando auditoría:", err)
+    } finally {
       setLoading(false)
-    }, 300)
+    }
   }
 
   useEffect(() => { fetchData() }, [])

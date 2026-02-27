@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { EMPLOYEES_MOCK } from "../../../../../mock/employees.mock"
+import { employeeService } from "../../../../../services/employeeService"
 
 export function usePersonal() {
   const [employees, setEmployees] = useState([])
@@ -9,15 +9,30 @@ export function usePersonal() {
   const [filterStatus, setFilterStatus] = useState("todos")
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setEmployees(EMPLOYEES_MOCK)
-      setLoading(false)
-    }, 300)
-    return () => clearTimeout(timer)
+    const load = async () => {
+      try {
+        setLoading(true)
+        const data = await employeeService.getAll()
+        setEmployees(data)
+      } catch (err) {
+        console.error("Error cargando empleados:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [])
 
-  const addEmployee = (emp) => {
-    setEmployees(prev => [...prev, { ...emp, id: Date.now() }])
+  const refetch = async () => {
+    try {
+      setLoading(true)
+      const data = await employeeService.getAll()
+      setEmployees(data)
+    } catch (err) {
+      console.error("Error recargando empleados:", err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const filtered = useMemo(() => employees.filter(e =>
@@ -29,20 +44,20 @@ export function usePersonal() {
   ), [employees, search, filterType, filterStatus])
 
   const stats = useMemo(() => ({
-    total:         employees.length,
-    instructores:  employees.filter(e => e.type === "Instructor").length,
+    total:           employees.length,
+    instructores:    employees.filter(e => e.type === "Instructor").length,
     desarrolladores: employees.filter(e => e.type === "Desarrollador").length,
     administradores: employees.filter(e => e.type === "Administrador").length,
-    asistentes:    employees.filter(e => e.type === "Asistente").length,
+    asistentes:      employees.filter(e => e.type === "Asistente Administrativo").length,
   }), [employees])
 
   return {
     employees: filtered,
     stats,
     loading,
+    refetch,
     search,        setSearch,
     filterType,    setFilterType,
     filterStatus,  setFilterStatus,
-    addEmployee,
   }
 }

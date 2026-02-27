@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { RRHH_AUDIT_MOCK } from "../../../../../mock/auditoriaRrhh.mock"
+import { auditRrhhService } from "../../../../../services/auditRrhhService"
 
 export function useAuditoriaRrhh() {
   const [registros, setRegistros] = useState([])
@@ -7,28 +7,31 @@ export function useAuditoriaRrhh() {
   const [search, setSearch]       = useState("")
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setRegistros(RRHH_AUDIT_MOCK)
-      setLoading(false)
-    }, 300)
-    return () => clearTimeout(timer)
+    const load = async () => {
+      try {
+        setLoading(true)
+        const data = await auditRrhhService.getDuplicates()
+        setRegistros(data)
+      } catch (err) {
+        console.error("Error cargando auditoría RRHH:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [])
 
-  const filtered = registros.filter(r =>
-    r.empleadoDuplicado?.toLowerCase().includes(search.toLowerCase()) ||
-    r.correoEmpleado?.toLowerCase().includes(search.toLowerCase()) ||
-    r.adminNombre?.toLowerCase().includes(search.toLowerCase()) ||
-    r.adminCorreo?.toLowerCase().includes(search.toLowerCase())
+  const filtered = registros.filter(d =>
+    d.empleadoDuplicado?.toLowerCase().includes(search.toLowerCase()) ||
+    d.correoEmpleado?.toLowerCase().includes(search.toLowerCase()) ||
+    d.adminNombre?.toLowerCase().includes(search.toLowerCase())
   )
-
-  // Admins únicos que han generado intentos
-  const adminsUnicos = new Set(registros.map(r => r.adminNombre)).size
 
   const stats = {
     totalIntentos:      registros.length,
-    empleadosAfectados: new Set(registros.map(r => r.empleadoDuplicado)).size,
-    adminsInvolucrados: adminsUnicos,
+    empleadosAfectados: new Set(registros.map(d => d.empleadoDuplicado)).size,
+    adminsInvolucrados: new Set(registros.map(d => d.adminNombre)).size,
   }
 
-  return { registros: filtered, stats, loading, search, setSearch }
+  return { duplicates: filtered, stats, loading, search, setSearch }
 }
