@@ -1,34 +1,59 @@
-import { useState, useEffect } from "react"
-import { RRHH_AUDIT_MOCK } from "../../../../../mock/auditoriaRrhh.mock"
+import { useState, useEffect } from "react";
+import { auditService } from "../../../../../services/auditService";
 
 export function useAuditoriaRrhh() {
-  const [registros, setRegistros] = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [search, setSearch]       = useState("")
+  const [registros, setRegistros] = useState([]);
+  const [stats, setStats] = useState({
+    totalIntentos: 0,
+    empleadosAfectados: 0,
+    adminsInvolucrados: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
+  const fetchLogs = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // Llama a los dos endpoints en paralelo
+      const [logsResponse, statsResponse] = await Promise.all([
+        auditService.getRrhhLogs({ search }),
+        auditService.getRrhhStats(),
+      ]);
+
+      // Mapea los campos del backend al formato que espera el frontend
+      const mapped = logsResponse.data.data.map((r) => ({
+        id: r.id,
+        empleadoDuplicado: r.empleado_nombre,
+        correoEmpleado: r.correo_empleado,
+        adminNombre: r.admin_nombre,
+        adminCorreo: r.admin_correo,
+        accion: r.accion,
+        esDuplicado: r.es_duplicado,
+        fechaHora: r.created_at,
+      }));
+
+      setRegistros(mapped);
+      setStats(statsResponse.data);
+    } catch (err) {
+      setError(err.message || "Error al cargar auditoría");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Recarga cuando cambia el search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setRegistros(RRHH_AUDIT_MOCK)
-      setLoading(false)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [])
+    fetchLogs();
+  }, [search]);
 
-  const filtered = registros.filter(r =>
-    r.empleadoDuplicado?.toLowerCase().includes(search.toLowerCase()) ||
-    r.correoEmpleado?.toLowerCase().includes(search.toLowerCase()) ||
-    r.adminNombre?.toLowerCase().includes(search.toLowerCase()) ||
-    r.adminCorreo?.toLowerCase().includes(search.toLowerCase())
-  )
-
-  // Admins únicos que han generado intentos
-  const adminsUnicos = new Set(registros.map(r => r.adminNombre)).size
-
-  const stats = {
-    totalIntentos:      registros.length,
-    empleadosAfectados: new Set(registros.map(r => r.empleadoDuplicado)).size,
-    adminsInvolucrados: adminsUnicos,
-  }
-
-  return { registros: filtered, stats, loading, search, setSearch }
+  return {
+    registros,
+    stats,
+    loading,
+    error,
+    search,
+    setSearch,
+  };
 }

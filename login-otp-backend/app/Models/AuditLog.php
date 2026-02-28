@@ -6,38 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
-        'email',
         'action',
-        'status',
+        'entity_type',
+        'entity_id',
+        'old_values',
+        'new_values',
         'ip_address',
         'user_agent',
-        'details',
+        'description',
     ];
 
     protected function casts(): array
     {
         return [
-            'details' => 'array',
+            'old_values' => 'array',
+            'new_values' => 'array',
+            'created_at' => 'datetime',
         ];
     }
 
-    // Método estático para registrar eventos fácilmente
-    public static function record(string $action, string $status, ?string $email = null, ?int $userId = null, array $details = []): void
-    {
-        self::create([
-            'user_id'    => $userId,
-            'email'      => $email,
-            'action'     => $action,
-            'status'     => $status,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'details'    => $details,
-        ]);
-    }
+    // ── Relaciones ──────────────────────────────
 
-    // Relación
     public function user()
     {
         return $this->belongsTo(User::class);

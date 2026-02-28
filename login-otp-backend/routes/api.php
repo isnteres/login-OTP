@@ -1,22 +1,40 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AuditController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\Rrhh\EmployeeController;
+use App\Http\Controllers\Audit\AuditController;
+use App\Http\Controllers\Audit\RrhhAuditController;
 
-Route::options('/{any}', function () {
-    return response()->json([], 200);
-})->where('any', '.*');
+// ── Rutas públicas ──────────────────────────────────────────
+Route::prefix('auth')->group(function () {
+    Route::post('login',                    [AuthController::class, 'login']);
+    Route::post('login/verify-otp',         [OtpController::class,  'verifyLoginOtp']);
+    Route::post('login/change-password',    [AuthController::class, 'createPassword']);
+    Route::post('register/send-otp',        [OtpController::class,  'sendRegisterOtp']);
+    Route::post('register/verify-otp',      [OtpController::class,  'verifyRegisterOtp']);
+    Route::post('register/create-password', [AuthController::class, 'createPassword']);
+});
 
-// Registro
-Route::post('/register/send-otp', [AuthController::class, 'registerSendOtp']);
-Route::post('/register/verify-otp', [AuthController::class, 'registerVerifyOtp']);
-Route::post('/register/create-password', [AuthController::class, 'registerCreatePassword']);
+// ── Rutas protegidas ────────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
 
-// Login (lo construiremos en el paso 4)
-Route::post('/login/credentials', [AuthController::class, 'loginCredentials']);
-Route::post('/login/verify-otp', [AuthController::class, 'loginVerifyOtp']);
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('auth/me',      [AuthController::class, 'me']);
 
-// Auditoría
-Route::get('/audit/summary', [AuditController::class, 'summary']);
-Route::get('/audit/logs', [AuditController::class, 'logs']);
+    Route::prefix('employees')->group(function () {
+        Route::get('/',              [EmployeeController::class, 'index']);
+        Route::post('/',             [EmployeeController::class, 'store']);
+        Route::get('/{id}',          [EmployeeController::class, 'show']);
+        Route::put('/{id}',          [EmployeeController::class, 'update']);
+        Route::patch('/{id}/status', [EmployeeController::class, 'changeStatus']);
+        Route::delete('/{id}',       [EmployeeController::class, 'destroy']);
+    });
+
+    Route::prefix('audit')->group(function () {
+        Route::get('general',    [AuditController::class,     'index']);
+        Route::get('rrhh',       [RrhhAuditController::class, 'index']);
+        Route::get('rrhh/stats', [RrhhAuditController::class, 'stats']);
+    });
+});
