@@ -69,42 +69,47 @@ class EmployeeController extends Controller
     }
 
     // POST /api/employees
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'  => 'required|string|max:150',
-            'email' => 'required|email|unique:users,email',
-            'type'  => 'required|string',
+public function store(Request $request)
+{
+    $request->validate([
+        'name'  => 'required|string|max:150',
+        'email' => 'required|email',
+        'type'  => 'required|string',
+    ], [
+        'email.required' => 'El correo es obligatorio.',
+        'email.email'    => 'Ingresa un correo válido.',
+        'name.required'  => 'El nombre es obligatorio.',
+        'type.required'  => 'El tipo de empleado es obligatorio.',
+    ]);
+
+    // Verifica duplicado y registra intento en auditoría RRHH
+    $existe = User::where('email', $request->email)->exists();
+    if ($existe) {
+        RrhhAuditLog::create([
+            'admin_user_id'   => $request->user()->id,
+            'admin_nombre'    => $request->user()->name,
+            'admin_correo'    => $request->user()->email,
+            'empleado_nombre' => $request->name,
+            'correo_empleado' => $request->email,
+            'accion'          => 'crear',
+            'es_duplicado'    => true,
+            'ip_address'      => $request->ip(),
         ]);
 
-        // Verifica duplicado y registra intento en auditoría RRHH
-        $existe = User::where('email', $request->email)->exists();
-        if ($existe) {
-            RrhhAuditLog::create([
-                'admin_user_id'  => $request->user()->id,
-                'admin_nombre'   => $request->user()->name,
-                'admin_correo'   => $request->user()->email,
-                'empleado_nombre' => $request->name,
-                'correo_empleado' => $request->email,
-                'accion'         => 'crear',
-                'es_duplicado'   => true,
-                'ip_address'     => $request->ip(),
-            ]);
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Ya existe un usuario con ese correo',
-            ], 422);
-        }
-
-        $employee = $this->employeeService->create($request->all(), $request->user());
-
         return response()->json([
-            'status'  => 'success',
-            'message' => 'Empleado creado correctamente',
-            'data'    => $employee,
-        ], 201);
+            'status'  => 'error',
+            'message' => 'Este correo ya está registrado en el sistema.',
+        ], 422);
     }
+
+    $employee = $this->employeeService->create($request->all(), $request->user());
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Empleado creado correctamente',
+        'data'    => $employee,
+    ], 201);
+}
 
     // GET /api/employees/{id}
     public function show($id)

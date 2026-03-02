@@ -25,20 +25,35 @@ const INITIAL_FORM = {
 
 export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
   const [form, setForm] = useState(INITIAL_FORM);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Cuando cambia el tipo, resetea el puesto
   const handleTypeChange = (e) => {
     setForm((f) => ({ ...f, type: e.target.value, position: "" }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.email) return;
-    onSubmit(form);
+    setIsLoading(true);
+    setError("");
+    try {
+      await onSubmit(form);
+      setForm(INITIAL_FORM);
+      onClose();
+    } catch (err) {
+      setError(err.message || "Error al agregar empleado");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClose = () => {
     setForm(INITIAL_FORM);
+    setError("");
     onClose();
   };
 
@@ -50,7 +65,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
         {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>Agregar Nuevo Empleado</h2>
-          <button onClick={onClose} className={styles.closeBtn}>
+          <button onClick={handleClose} className={styles.closeBtn}>
             <FiX size={16} />
           </button>
         </div>
@@ -66,6 +81,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.name}
                 onChange={set("name")}
                 className={styles.input}
+                disabled={isLoading}
               />
             </div>
             <div className={styles.field}>
@@ -74,8 +90,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 type="email"
                 placeholder="juan.perez@empresa.com"
                 value={form.email}
-                onChange={set("email")}
+                onChange={(e) => {
+                  set("email")(e);
+                  setError("");
+                }}
                 className={styles.input}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -86,6 +106,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
               value={form.phone}
               onChange={set("phone")}
               className={`${styles.input} ${styles.halfWidth}`}
+              disabled={isLoading}
             />
           </div>
 
@@ -97,6 +118,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.type}
                 onChange={handleTypeChange}
                 className={styles.select}
+                disabled={isLoading}
               >
                 {EMPLOYEE_TYPES.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -111,6 +133,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.department}
                 onChange={set("department")}
                 className={styles.select}
+                disabled={isLoading}
               >
                 <option value="">Seleccionar departamento</option>
                 {DEPARTMENTS.map((o) => (
@@ -126,6 +149,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.position}
                 onChange={set("position")}
                 className={styles.select}
+                disabled={isLoading}
               >
                 <option value="">Seleccionar puesto</option>
                 {positions.map((o) => (
@@ -142,6 +166,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.hireDate}
                 onChange={set("hireDate")}
                 className={styles.input}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -151,6 +176,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
               value={form.status}
               onChange={set("status")}
               className={`${styles.select} ${styles.halfWidth}`}
+              disabled={isLoading}
             >
               {EMPLOYEE_STATUSES.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -168,6 +194,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
               value={form.specialty}
               onChange={set("specialty")}
               className={styles.input}
+              disabled={isLoading}
             />
           </div>
           <div className={styles.grid2}>
@@ -180,6 +207,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.experience}
                 onChange={set("experience")}
                 className={styles.input}
+                disabled={isLoading}
               />
             </div>
             <div className={styles.field}>
@@ -188,6 +216,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 value={form.education}
                 onChange={set("education")}
                 className={styles.select}
+                disabled={isLoading}
               >
                 <option value="">Seleccionar</option>
                 {EDUCATION_LEVELS.map((o) => (
@@ -200,17 +229,42 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
           </div>
         </div>
 
+        {/* Error */}
+        {error && (
+          <div
+            style={{
+              background: "#fee2e2",
+              border: "1px solid #fca5a5",
+              padding: "12px 16px",
+              borderRadius: "8px",
+              margin: "0 24px 12px",
+              color: "#dc2626",
+              fontSize: "14px",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* Footer */}
         <div className={styles.footer}>
-          <button onClick={onClose} className={styles.btnCancel}>
+          <button
+            onClick={handleClose}
+            className={styles.btnCancel}
+            disabled={isLoading}
+          >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!form.name || !form.email}
+            disabled={!form.name || !form.email || isLoading}
             className={styles.btnSubmit}
+            style={{
+              opacity: !form.name || !form.email || isLoading ? 0.6 : 1,
+            }}
           >
-            Agregar Empleado
+            {isLoading ? "Agregando..." : "Agregar Empleado"}
           </button>
         </div>
       </div>

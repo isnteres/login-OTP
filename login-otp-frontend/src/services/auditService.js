@@ -42,4 +42,10 @@ export const auditService = {
       search: filters.search || "",
       page: filters.page || 1,
     }),
+
+  // GET /api/audit/analytics
+  getAnalytics: (period = "7d") => get(`/audit/analytics`, { period }),
+
+  // GET /api/audit/summary
+  getSystemSummary: () => get("/audit/summary"),
 };

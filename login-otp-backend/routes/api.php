@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('audit')->group(function () {
         Route::get('general',    [AuditController::class,     'index']);
+        Route::get('summary',    [AuditController::class,     'summary']);
+        Route::get('analytics',  [AuditController::class,     'analytics']);
         Route::get('rrhh',       [RrhhAuditController::class, 'index']);
         Route::get('rrhh/stats', [RrhhAuditController::class, 'stats']);
     });

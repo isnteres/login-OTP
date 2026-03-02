@@ -1,33 +1,71 @@
-import { FiEye, FiEdit2, FiSlash, FiTrash2 } from "react-icons/fi"
-import styles from "./PersonalTable.module.css"
+import { FiEye, FiEdit2, FiSlash, FiTrash2, FiCheck } from "react-icons/fi";
+import styles from "./PersonalTable.module.css";
 
 const TYPE_COLORS = {
-  Instructor:                "#6366f1",
-  Desarrollador:             "#10b981",
-  Administrador:             "#f59e0b",
+  Instructor: "#6366f1",
+  Desarrollador: "#10b981",
+  Administrador: "#f59e0b",
   "Asistente Administrativo": "#06b6d4",
-}
+};
 
-const COLUMNS = ["Nombre", "Email", "Tipo", "Puesto", "Departamento", "Estado", "Acciones"]
+const COLUMNS = [
+  "Nombre",
+  "Email",
+  "Tipo",
+  "Puesto",
+  "Departamento",
+  "Estado",
+  "Acciones",
+];
 
-export default function PersonalTable({ employees }) {
+export default function PersonalTable({
+  employees,
+  onChangeStatus,
+  onDelete,
+  onView,
+}) {
   if (employees.length === 0) {
-    return <div className={styles.empty}>No hay empleados</div>
+    return <div className={styles.empty}>No hay empleados</div>;
   }
+
+  const handleChangeStatus = (emp) => {
+    const nuevoStatus = emp.status === "Activo" ? "inactivo" : "activo";
+    if (
+      confirm(
+        `¿Deseas ${nuevoStatus === "activo" ? "activar" : "desactivar"} a ${emp.name}?`,
+      )
+    ) {
+      onChangeStatus(emp.id, nuevoStatus);
+    }
+  };
+
+  const handleDelete = (emp) => {
+    if (
+      confirm(
+        `¿Estás seguro de eliminar a ${emp.name}? Esta acción no se puede deshacer.`,
+      )
+    ) {
+      onDelete(emp.id);
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
-            {COLUMNS.map(col => (
-              <th key={col} className={styles.th}>{col}</th>
+            {COLUMNS.map((col) => (
+              <th key={col} className={styles.th}>
+                {col}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {employees.map(emp => {
-            const color = TYPE_COLORS[emp.type] || "#6366f1"
+          {employees.map((emp) => {
+            const color = TYPE_COLORS[emp.type] || "#6366f1";
+            const isActivo = emp.status?.toLowerCase() === "activo";
+
             return (
               <tr key={emp.id} className={styles.row}>
                 {/* Nombre */}
@@ -61,47 +99,68 @@ export default function PersonalTable({ employees }) {
                 </td>
 
                 {/* Puesto */}
-                <td className={`${styles.td} ${styles.muted}`}>{emp.position || "N/A"}</td>
+                <td className={`${styles.td} ${styles.muted}`}>
+                  {emp.position || "N/A"}
+                </td>
 
                 {/* Departamento */}
-                <td className={`${styles.td} ${styles.muted}`}>{emp.department || "—"}</td>
+                <td className={`${styles.td} ${styles.muted}`}>
+                  {emp.department || "—"}
+                </td>
 
                 {/* Estado */}
                 <td className={styles.td}>
                   <span
                     className={styles.statusBadge}
                     style={{
-                      background: emp.status === "Activo" ? "#22c55e18" : "#ef444418",
-                      color:      emp.status === "Activo" ? "#22c55e"   : "#ef4444",
-                      border:     `1px solid ${emp.status === "Activo" ? "#22c55e30" : "#ef444430"}`,
+                      background: isActivo ? "#22c55e18" : "#ef444418",
+                      color: isActivo ? "#22c55e" : "#ef4444",
+                      border: `1px solid ${isActivo ? "#22c55e30" : "#ef444430"}`,
                     }}
                   >
-                    {emp.status === "Activo" ? "Activo" : "Inactivo"}
+                    {isActivo ? "Activo" : "Inactivo"}
                   </span>
                 </td>
 
                 {/* Acciones */}
                 <td className={styles.td}>
                   <div className={styles.actions}>
-                    <button className={styles.actionBtn} style={{ color: "#818cf8" }} title="Ver detalle">
+                    {/* Ver detalle */}
+                    <button
+                      className={styles.actionBtn}
+                      style={{ color: "#818cf8" }}
+                      title="Ver detalle"
+                      onClick={() => onView && onView(emp)}
+                    >
                       <FiEye size={13} />
                     </button>
-                    <button className={styles.actionBtn} style={{ color: "#34d399" }} title="Editar">
-                      <FiEdit2 size={13} />
+
+                    {/* Activar / Desactivar */}
+                    <button
+                      className={styles.actionBtn}
+                      style={{ color: isActivo ? "#f59e0b" : "#34d399" }}
+                      title={isActivo ? "Desactivar" : "Activar"}
+                      onClick={() => handleChangeStatus(emp)}
+                    >
+                      {isActivo ? <FiSlash size={13} /> : <FiCheck size={13} />}
                     </button>
-                    <button className={styles.actionBtn} style={{ color: "#f59e0b" }} title="Bloquear">
-                      <FiSlash size={13} />
-                    </button>
-                    <button className={styles.actionBtn} style={{ color: "#f87171" }} title="Eliminar">
+
+                    {/* Eliminar */}
+                    <button
+                      className={styles.actionBtn}
+                      style={{ color: "#f87171" }}
+                      title="Eliminar"
+                      onClick={() => handleDelete(emp)}
+                    >
                       <FiTrash2 size={13} />
                     </button>
                   </div>
                 </td>
               </tr>
-            )
+            );
           })}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
