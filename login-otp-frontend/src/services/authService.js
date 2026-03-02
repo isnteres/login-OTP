@@ -21,12 +21,14 @@ export const authService = {
     post("/login/credentials", { email, password }),
 
   loginVerifyOtp: async (email, otp) => {
-    const data = await post("/login/verify-otp", { email, otp });
+  const data = await post("/login/verify-otp", { email, otp });
 
-    localStorage.setItem("user", JSON.stringify(data.user));
+  console.log("Usuario que viene del backend:", data.user);
 
-    return data;
-  },
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  return data;
+},
 
   changePassword: (email, newPassword) =>
     post("/auth/change-password", { email, newPassword }),

@@ -34,6 +34,10 @@ export default function LoginFlow() {
 
     try {
       setIsLoading(true)
+
+      console.log("Intentando login con:", email);
+      localStorage.removeItem("user"); // 👈 Limpia usuario anterior
+
       const res = await authService.loginCredentials(email, password)
       if (res.isTemporary) {
         navigate("/dashboard", { state: { mustChangePassword: true, userEmail: email } })
