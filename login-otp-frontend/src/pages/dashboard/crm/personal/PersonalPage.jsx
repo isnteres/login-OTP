@@ -20,10 +20,10 @@ export default function PersonalPage({ setActive }) {
     search, setSearch,
     filterType, setFilterType,
     filterStatus, setFilterStatus,
-    addEmployee,
+    refetch,
   } = usePersonal()
   const handleEmployeeCreated = ({ employee, tempPassword }) => {
-    addEmployee(employee)
+    refetch()
 
     addToast({
       type: "success",
