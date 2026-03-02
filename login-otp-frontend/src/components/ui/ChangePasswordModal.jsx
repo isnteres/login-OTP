@@ -254,14 +254,14 @@ export default function ChangePasswordModal({ userEmail, onSuccess }) {
                 </button>
               </div>
               {confirm && password && confirm !== password && (
-                <p style={{ color: "#f87171", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
+                <div style={{ color: "#f87171", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
                   <FiAlertCircle size={12} /> Las contraseñas no coinciden
-                </p>
+                </div>
               )}
               {confirm && password && confirm === password && (
-                <p style={{ color: "#4ade80", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
+                <div style={{ color: "#4ade80", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}>
                   <FiCheck size={12} /> Las contraseñas coinciden
-                </p>
+                </div>
               )}
             </div>
 
