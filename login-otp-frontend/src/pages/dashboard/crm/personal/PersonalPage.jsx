@@ -13,6 +13,10 @@ import styles from "./PersonalPage.module.css"
 export default function PersonalPage({ setActive }) {
   const [viewTab, setViewTab]     = useState("gallery")
   const [showModal, setShowModal] = useState(false)
+  
+  const user = JSON.parse(localStorage.getItem("user"))
+  const isAdmin = user?.role === "admin"
+  
   const { toasts, addToast, removeToast } = useToast()
 
   const {
@@ -52,9 +56,14 @@ export default function PersonalPage({ setActive }) {
             <button className={styles.btnOutline}>
               <FiDownload size={13} /> Exportar
             </button>
-            <button className={styles.btnPrimary} onClick={() => setShowModal(true)}>
-              <FiUserPlus size={13} /> Agregar Empleado
-            </button>
+            {isAdmin && (
+  <button
+    className={styles.btnPrimary}
+    onClick={() => setShowModal(true)}
+  >
+    <FiUserPlus size={13} /> Agregar Empleado
+  </button>
+)}
           </div>
         </div>
 

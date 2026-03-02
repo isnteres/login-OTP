@@ -153,9 +153,14 @@ class AuthController extends Controller
         AuditLog::record('login_exitoso', 'success', $email, $user->id);
 
         return response()->json([
-            'message' => 'Bienvenido',
-            'user'    => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
-        ]);
+    'message' => 'Bienvenido',
+    'user' => [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role
+    ]
+]);
     }
 
     public function changePassword(Request $request)

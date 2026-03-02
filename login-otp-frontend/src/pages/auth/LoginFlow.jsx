@@ -11,9 +11,9 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiMail, FiLock, FiArrowLeft } from "react-icons/fi"
-import OtpInput from "../../components/OtpInput"
+import { FiMail, FiLock, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"
 import { authService } from "../../services/authService"
+import OtpInput from "../../components/OtpInput"
 
 export default function LoginFlow() {
   const navigate = useNavigate()
@@ -24,6 +24,7 @@ export default function LoginFlow() {
   const [otp, setOtp]             = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError]         = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   // ── Step 1: credenciales ────────────────────────────────────────────────────
   const handleCredentials = async () => {
@@ -107,17 +108,40 @@ export default function LoginFlow() {
               </div>
 
               <div className="input-group">
-                <label>Contraseña</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="input-field"
-                  value={password}
-                  onChange={e => { setPassword(e.target.value); setError("") }}
-                  onKeyDown={e => e.key === "Enter" && handleCredentials()}
-                  disabled={isLoading}
-                />
-              </div>
+  <label>Contraseña</label>
+
+  <div style={{ position: "relative" }}>
+    <input
+      type={showPassword ? "text" : "password"}
+      placeholder="••••••••"
+      className="input-field"
+      value={password}
+      onChange={e => { setPassword(e.target.value); setError("") }}
+      onKeyDown={e => e.key === "Enter" && handleCredentials()}
+      disabled={isLoading}
+      style={{ paddingRight: "40px" }}
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(s => !s)}
+      style={{
+        position: "absolute",
+        right: "12px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        color: "rgba(255,255,255,0.5)",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+    </button>
+  </div>
+</div>
 
               <button
                 onClick={handleCredentials}
