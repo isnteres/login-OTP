@@ -1,7 +1,7 @@
 import { useState } from "react"
 import {
   FiUsers, FiShield, FiActivity,
-  FiChevronDown, FiLogOut,
+  FiChevronDown, FiLogOut, FiHome, FiBookOpen,
 } from "react-icons/fi"
 
 import { useSuperAdmin }        from "../../hooks/useSuperAdmin"
@@ -12,10 +12,33 @@ import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
 import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
 import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
 
-// Sidebar
+// ─── Placeholder temporal para módulos nuevos ────────────────────────────────
+// INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
+function InicioPlaceholder() {
+  return (
+    <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
+      <h2 style={{ color: "white", marginBottom: "8px" }}>Panel Inicio</h2>
+      <p>Módulo en construcción — Integrante 4</p>
+    </div>
+  )
+}
+
+// INTEGRANTE 3: reemplazar CursosPlaceholder por CursosPage cuando esté listo
+function CursosPlaceholder() {
+  return (
+    <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
+      <h2 style={{ color: "white", marginBottom: "8px" }}>Cursos Online</h2>
+      <p>Módulo en construcción — Integrante 3</p>
+    </div>
+  )
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function Sidebar({ active, setActive, granted, onLogout }) {
-  const [openCRM,  setOpenCRM]  = useState(true)
-  const [openSist, setOpenSist] = useState(true)
+  const [openPanel,  setOpenPanel]  = useState(true)
+  const [openCRM,    setOpenCRM]    = useState(true)
+  const [openOps,    setOpenOps]    = useState(true)
+  const [openSist,   setOpenSist]   = useState(true)
 
   const isActive = (id) => active === id || active === id + "_gate"
 
@@ -29,14 +52,11 @@ function Sidebar({ active, setActive, granted, onLogout }) {
       letterSpacing: "0.1em",
     }}>
       {label}
-      <FiChevronDown
-        size={12}
-        style={{
-          transition: "transform 0.2s",
-          transform: isOpen ? "rotate(0deg)" : "rotate(-90deg)",
-          opacity: 0.45,
-        }}
-      />
+      <FiChevronDown size={12} style={{
+        transition: "transform 0.2s",
+        transform: isOpen ? "rotate(0deg)" : "rotate(-90deg)",
+        opacity: 0.45,
+      }} />
     </button>
   )
 
@@ -79,13 +99,6 @@ function Sidebar({ active, setActive, granted, onLogout }) {
       {/* Logo */}
       <div style={{ padding: "18px 14px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-          {/*<div style={{
-            width: "30px", height: "30px", borderRadius: "8px",
-            background: "linear-gradient(135deg,#6366f1,#10b981)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <FiShield size={14} color="white" />
-          </div>*/}
           <div>
             <p style={{ color: "white", fontWeight: "700", fontSize: "13px", margin: 0, lineHeight: 1.2 }}>Dashboard</p>
             <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px", margin: 0 }}>Panel de Administración</p>
@@ -95,9 +108,26 @@ function Sidebar({ active, setActive, granted, onLogout }) {
 
       {/* Nav */}
       <nav style={{ padding: "4px 8px", flex: 1 }}>
-        <SectionHeader label="Comercial (CRM)" isOpen={openCRM} toggle={() => setOpenCRM(p => !p)} />
-        {openCRM && <NavItem id="crm" label="CRM" icon={<FiUsers size={14} />} />}
 
+        {/* PANEL */}
+        <SectionHeader label="Panel" isOpen={openPanel} toggle={() => setOpenPanel(p => !p)} />
+        {openPanel && (
+          <NavItem id="panel_inicio" label="Inicio" icon={<FiHome size={14} />} />
+        )}
+
+        {/* COMERCIAL (CRM) */}
+        <SectionHeader label="Comercial (CRM)" isOpen={openCRM} toggle={() => setOpenCRM(p => !p)} />
+        {openCRM && (
+          <NavItem id="crm" label="CRM" icon={<FiUsers size={14} />} />
+        )}
+
+        {/* OPERACIONES / PROYECTOS */}
+        <SectionHeader label="Operaciones / Proyectos" isOpen={openOps} toggle={() => setOpenOps(p => !p)} />
+        {openOps && (
+          <NavItem id="operaciones_cursos" label="Cursos Online" icon={<FiBookOpen size={14} />} />
+        )}
+
+        {/* SISTEMA Y SEGURIDAD */}
         <SectionHeader label="Sistema y Seguridad" isOpen={openSist} toggle={() => setOpenSist(p => !p)} />
         {openSist && (
           <>
@@ -105,6 +135,7 @@ function Sidebar({ active, setActive, granted, onLogout }) {
             <NavItem id="sistema_auditoria" label="Auditoría"     icon={<FiShield size={14} />}   needsAuth />
           </>
         )}
+
       </nav>
 
       {/* Logout */}
@@ -138,22 +169,32 @@ function renderPage(active, setActive, superAdmin) {
   }
 
   switch (active) {
+    // ── PANEL ──────────────────────────────────────────────────────────────
+    case "panel_inicio":          return <InicioPlaceholder />        // INTEGRANTE 4: cambiar a <InicioPage />
+
+    // ── COMERCIAL (CRM) ────────────────────────────────────────────────────
     case "crm":
-    case "crm_rrhh_personal":   return <PersonalPage      setActive={setActive} />
-    case "crm_rrhh_desempeno":  return <DesempenoPage     setActive={setActive} />
-    case "crm_rrhh_objetivos":  return <ObjetivosPage     setActive={setActive} />
-    case "crm_rrhh_auditoria":  return <AuditoriaRrhhPage setActive={setActive} />
-    case "crm_soporte":         return <SoportePage       setActive={setActive} />
-    case "crm_comunidad":       return <ComunidadPage     setActive={setActive} />
-    case "sistema_analitica":   return <AnaliticaPage />
-    case "sistema_auditoria":   return <AuditoriaSistemaPage />
-    default:                    return <PersonalPage setActive={setActive} />
+    case "crm_rrhh_personal":    return <PersonalPage      setActive={setActive} />
+    case "crm_rrhh_desempeno":   return <DesempenoPage     setActive={setActive} />
+    case "crm_rrhh_objetivos":   return <ObjetivosPage     setActive={setActive} />
+    case "crm_rrhh_auditoria":   return <AuditoriaRrhhPage setActive={setActive} />
+    case "crm_soporte":          return <SoportePage       setActive={setActive} />
+    case "crm_comunidad":        return <ComunidadPage     setActive={setActive} />
+
+    // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
+    case "operaciones_cursos":   return <CursosPlaceholder />         // INTEGRANTE 3: cambiar a <CursosPage />
+
+    // ── SISTEMA Y SEGURIDAD ────────────────────────────────────────────────
+    case "sistema_analitica":    return <AnaliticaPage />
+    case "sistema_auditoria":    return <AuditoriaSistemaPage />
+
+    // ── DEFAULT ────────────────────────────────────────────────────────────
+    default:                     return <InicioPlaceholder />          // INTEGRANTE 4: cambiar a <InicioPage />
   }
 }
 
-// Layout principal 
 export default function DashboardLayout({ onLogout }) {
-  const [active, setActive] = useState("crm")
+  const [active, setActive] = useState("panel_inicio")  // abre en Inicio por defecto
   const superAdmin = useSuperAdmin()
 
   return (
