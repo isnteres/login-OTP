@@ -5,6 +5,8 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuditRrhhController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::options('/{any}', function () {
@@ -30,6 +32,18 @@ Route::post('/employees',              [EmployeeController::class, 'store']);
 Route::put('/employees/{id}',          [EmployeeController::class, 'update']);
 Route::patch('/employees/{id}/block',  [EmployeeController::class, 'toggleBlock']);
 Route::delete('/employees/{id}',       [EmployeeController::class, 'destroy']);
+
+// Cursos
+// Ruta de stats debe ir ANTES de /{id} para que Laravel no la interprete como id=stats
+Route::get   ('/courses/stats/sales',    [CourseController::class, 'salesStats']);
+Route::get   ('/courses',                [CourseController::class, 'index']);
+Route::get   ('/courses/{id}',           [CourseController::class, 'show']);
+Route::post  ('/courses',                [CourseController::class, 'store']);
+Route::put   ('/courses/{id}',           [CourseController::class, 'update']);
+Route::patch ('/courses/{id}/toggle',    [CourseController::class, 'toggleActive']);
+
+//Dashboard (Panel Inicio)
+Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
 // Auditoría del sistema
 Route::get('/audit/summary', [AuditController::class, 'summary']);

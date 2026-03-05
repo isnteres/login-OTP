@@ -11,15 +11,14 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'user_type',
         'is_temporary_password',
         'login_attempts',
         'locked_until',
         'email_verified_at',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $hidden = ['password'];
 
     protected function casts(): array
     {
@@ -33,27 +32,16 @@ class User extends Authenticatable
 
     // Relaciones
 
-    public function employee()
-    {
-        return $this->hasOne(Employee::class);
-    }
-
-    public function otpCodes()
-    {
-        return $this->hasMany(OtpCode::class);
-    }
-
-    public function auditLogs()
-    {
-        return $this->hasMany(AuditLog::class);
-    }
+    public function employee()   { return $this->hasOne(Employee::class); }
+    public function otpCodes()   { return $this->hasMany(OtpCode::class); }
+    public function auditLogs()  { return $this->hasMany(AuditLog::class); }
+    public function enrollments(){ return $this->hasMany(Enrollment::class); }
 
     // Helpers
 
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
+    public function isAdmin(): bool    { return $this->role === 'admin'; }
+    public function isEmployee(): bool { return $this->user_type === 'employee'; }
+    public function isClient(): bool   { return $this->user_type === 'client'; }
 
     public function isLocked(): bool
     {
@@ -63,10 +51,8 @@ class User extends Authenticatable
     public function incrementLoginAttempts(): void
     {
         $this->increment('login_attempts');
-
-        if ($this->login_attempts >= 5) {
+        if ($this->login_attempts >= 5)
             $this->update(['locked_until' => now()->addMinutes(15)]);
-        }
     }
 
     public function resetLoginAttempts(): void

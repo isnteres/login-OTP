@@ -115,12 +115,13 @@ class AuthService
         $user = User::create([
             'email'                 => $email,
             'password'              => Hash::make($password),
-            'role'                  => 'employee',
+            'role'                  => 'client',
+            'user_type'             => 'client',
             'is_temporary_password' => false,
             'email_verified_at'     => now(),
         ]);
 
-        AuditLog::record('registro_completado', 'success', $email, $user->id);
+        AuditLog::record('registro_completado', 'success', $email, $user->id, ['user_type' => 'client']);
         return $user;
     }
 

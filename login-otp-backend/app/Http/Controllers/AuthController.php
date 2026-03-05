@@ -18,7 +18,7 @@ class AuthController extends Controller
         if ($v->fails()) abort(response()->json(['message' => $msg], 422));
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
+    // Login
 
     public function loginCredentials(Request $request)
     {
@@ -33,14 +33,25 @@ class AuthController extends Controller
             AuditLog::record('login_temporal', 'success', $user->email, $user->id);
             return response()->json([
                 'isTemporary' => true,
-                'user'        => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
+                'user'        => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
             ]);
         }
 
+        // Clientes: login directo sin OTP
+        if ($user->user_type === 'client') {
+            AuditLog::record('login_exitoso', 'success', $user->email, $user->id);
+            return response()->json([
+                'isTemporary' => false,
+                'requiresOtp' => false,
+                'user'        => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
+            ]);
+        }
+
+        // Empleados y admins: requieren OTP
         $this->auth->sendOtp($user->email, 'login', $user->id);
         AuditLog::record('login_otp_enviado', 'success', $user->email, $user->id);
 
-        return response()->json(['isTemporary' => false, 'message' => 'Credenciales correctas, revisá tu correo']);
+        return response()->json(['isTemporary' => false, 'requiresOtp' => true, 'message' => 'Credenciales correctas, revisá tu correo']);
     }
 
     public function loginVerifyOtp(Request $request)
@@ -63,7 +74,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Bienvenido',
-            'user'    => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
+            'user'    => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
         ]);
     }
 
@@ -80,7 +91,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Contraseña actualizada correctamente']);
     }
 
-    // ── Registro ──────────────────────────────────────────────────────────────
+    // Registro
 
     public function registerSendOtp(Request $request)
     {
@@ -129,7 +140,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Cuenta creada exitosamente',
-            'user'    => ['id' => $user->id, 'email' => $user->email],
+            'user'    => ['id' => $user->id, 'email' => $user->email, 'userType' => $user->user_type],
         ]);
     }
 }

@@ -35,11 +35,13 @@ class EmployeeService
 
     public function create(array $data): array
     {
-        // Verificar duplicado
-        if (User::where('email', $data['email'])->exists()) {
+        $email = $data['email'];
+
+        // Verificar duplicado → registrar en auditoría RRHH
+        if (User::where('email', $email)->exists()) {
             $admin = User::where('role', 'admin')->first();
-            RrhhAuditLog::record($data['name'], $data['email'], $admin);
-            AuditLog::record('employee_duplicate_attempt', 'failed', $data['email'], null, ['nombre_intento' => $data['name']]);
+            RrhhAuditLog::record($data['name'], $email, $admin);
+            AuditLog::record('employee_duplicate_attempt', 'failed', $email, null, ['nombre_intento' => $data['name']]);
             return ['duplicate' => true];
         }
 
@@ -47,9 +49,10 @@ class EmployeeService
 
         $user = User::create([
             'name'                  => $data['name'],
-            'email'                 => $data['email'],
+            'email'                 => $email,
             'password'              => Hash::make($tempPassword),
             'role'                  => 'employee',
+            'user_type'             => 'employee',
             'is_temporary_password' => true,
             'email_verified_at'     => now(),
         ]);
@@ -69,7 +72,6 @@ class EmployeeService
         ]);
 
         $this->sendWelcomeEmail($user->email, $user->name, $tempPassword);
-
         AuditLog::record('employee_created', 'success', $user->email, $user->id, ['type' => $data['type']]);
 
         return ['employee' => $employee->load('user')->toFrontend(), 'tempPassword' => $tempPassword];
