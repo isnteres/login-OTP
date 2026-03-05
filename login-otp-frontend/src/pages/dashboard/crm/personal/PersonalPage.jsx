@@ -1,18 +1,12 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FiDownload, FiUserPlus } from "react-icons/fi"
 import RrhhTabs from "../../../../components/ui/RrhhTabs"
 import PersonalStats from "./components/PersonalStats"
 import PersonalFilters from "./components/PersonalFilters"
 import PersonalGallery from "./components/PersonalGallery"
-<<<<<<< HEAD
 import PersonalTable from "./components/PersonalTable"
-import AddEmployeeModal from "./components/AddEmployeeModal"
+import EmployeeModal from "./components/EmployeeModal"
 import DebugPanel from "../../../../components/ui/DebugPanel"
-import { useEffect } from "react"
-=======
-import PersonalTable   from "./components/PersonalTable"
-import EmployeeModal   from "./components/EmployeeModal"
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
 import { ToastContainer, useToast } from "../../../../components/ui/Toast"
 import { usePersonal } from "./hooks/usePersonal"
 import { employeeService } from "../../../../services/employeeService"
@@ -20,12 +14,8 @@ import styles from "./PersonalPage.module.css"
 
 export default function PersonalPage({ setActive }) {
   const [viewTab, setViewTab] = useState("gallery")
-<<<<<<< HEAD
-  const [showModal, setShowModal] = useState(false)
+  const [modal, setModal] = useState({ open: false, mode: "add", employee: null })
   const [showDebug, setShowDebug] = useState(false)
-=======
-  const [modal,   setModal]   = useState({ open: false, mode: "add", employee: null })
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
   const { toasts, addToast, removeToast } = useToast()
 
   const {
@@ -36,16 +26,6 @@ export default function PersonalPage({ setActive }) {
     refetch,
   } = usePersonal()
 
-<<<<<<< HEAD
-    addToast({
-      type: "success",
-      duration: 12000,
-      message: {
-        title: `Empleado creado exitosamente`,
-        body: `Contraseña temporal: ${tempPassword} — Se ha enviado al correo ${employee.email}. Guarde esta información.`,
-      },
-    })
-=======
   const openModal = (mode, employee = null) => setModal({ open: true, mode, employee })
   const closeModal = () => setModal(m => ({ ...m, open: false }))
 
@@ -56,7 +36,7 @@ export default function PersonalPage({ setActive }) {
         type: "success", duration: 12000,
         message: {
           title: "Empleado creado exitosamente",
-          body:  `Contraseña temporal: ${tempPassword} — Enviada al correo ${employee.email}. Guardá esta información.`,
+          body:  `Contraseña temporal: ${tempPassword} — Enviada al correo ${employee.email}. Guarde esta información.`,
         },
       })
     } else if (mode === "edit") {
@@ -82,7 +62,7 @@ export default function PersonalPage({ setActive }) {
   }
 
   const handleDelete = async (emp) => {
-    if (!window.confirm(`¿Eliminár a ${emp.name}? Esta acción no se puede deshacer.`)) return
+    if (!window.confirm(`¿Eliminar a ${emp.name}? Esta acción no se puede deshacer.`)) return
     try {
       await employeeService.remove(emp.id)
       await refetch()
@@ -90,7 +70,6 @@ export default function PersonalPage({ setActive }) {
     } catch (err) {
       addToast({ type: "error", duration: 4000, message: { title: "Error", body: err.message } })
     }
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
   }
 
   // Atajo para diagnóstico: Ctrl + Shift + D
@@ -128,7 +107,6 @@ export default function PersonalPage({ setActive }) {
         <PersonalStats stats={stats} />
 
         <div className={styles.viewTabs}>
-<<<<<<< HEAD
           {[
             { id: "gallery", label: "Galería de Fotos" },
             { id: "table", label: "Tabla Detallada" },
@@ -138,11 +116,6 @@ export default function PersonalPage({ setActive }) {
               onClick={() => setViewTab(t.id)}
               className={`${styles.viewTab} ${viewTab === t.id ? styles.viewTabActive : ""}`}
             >
-=======
-          {[{ id:"gallery", label:"Galería de Fotos" }, { id:"table", label:"Tabla Detallada" }].map(t => (
-            <button key={t.id} onClick={() => setViewTab(t.id)}
-              className={`${styles.viewTab} ${viewTab === t.id ? styles.viewTabActive : ""}`}>
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
               {t.label}
             </button>
           ))}
@@ -158,32 +131,20 @@ export default function PersonalPage({ setActive }) {
             ? <p className={styles.loading}>Cargando...</p>
             : viewTab === "gallery"
               ? <PersonalGallery employees={employees} />
-<<<<<<< HEAD
-              : <PersonalTable employees={employees} />
+              : <PersonalTable
+                  employees={employees}
+                  onView={emp        => openModal("view", emp)}
+                  onEdit={emp        => openModal("edit", emp)}
+                  onToggleBlock={emp => handleToggleBlock(emp)}
+                  onDelete={emp      => handleDelete(emp)}
+                />
           }
         </div>
-
-        <AddEmployeeModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onEmployeeCreated={handleEmployeeCreated}
-        />
 
         <DebugPanel
           isOpen={showDebug}
           onClose={() => setShowDebug(false)}
         />
-=======
-              : <PersonalTable
-                  employees={employees}
-                  onView={emp         => openModal("view", emp)}
-                  onEdit={emp         => openModal("edit", emp)}
-                  onToggleBlock={emp  => handleToggleBlock(emp)}
-                  onDelete={emp       => handleDelete(emp)}
-                />
-          }
-        </div>
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
       </div>
 
       <EmployeeModal

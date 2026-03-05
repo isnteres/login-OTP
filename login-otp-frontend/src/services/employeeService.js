@@ -1,6 +1,5 @@
 const API_URL = "http://localhost:8000/api"
 
-<<<<<<< HEAD
 export async function request(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
   const token = localStorage.getItem('auth_token');
@@ -44,31 +43,15 @@ export async function request(endpoint, options = {}) {
 }
 
 export const employeeService = {
-  getAll: () => request("/crm/employees"),
-  create: (data) => request("/crm/employees", { method: "POST", body: data }),
-  update: (id, data) => request(`/crm/employees/${id}`, { method: "PUT", body: data }),
-  remove: (id) => request(`/crm/employees/${id}`, { method: "DELETE" }),
+  // Nuevos endpoints de Kenia integrados con tu sistema de Auth
+  getAll:      () => request("/employees"),
+  getStats:    () => request("/employees/stats"),
+  getById:     (id) => request(`/employees/${id}`),
+  create:      (data) => request("/employees", { method: "POST", body: data }),
+  update:      (id, data) => request(`/employees/${id}`, { method: "PUT", body: data }),
+  toggleBlock: (id) => request(`/employees/${id}/block`, { method: "PATCH" }),
+  remove:      (id) => request(`/employees/${id}`, { method: "DELETE" }),
+  
+  // Tu endpoint de diagnósticos conservado
   getDiagnostics: () => request("/crm/hr-diagnostics"),
 }
-=======
-const request = async (method, endpoint, body) => {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  })
-  const data = await response.json()
-  if (!response.ok) throw new Error(data.message || "Error en la solicitud")
-  return data
-}
-
-export const employeeService = {
-  getAll:      ()         => request("GET",    "/employees"),
-  getStats:    ()         => request("GET",    "/employees/stats"),
-  getById:     (id)       => request("GET",    `/employees/${id}`),
-  create:      (data)     => request("POST",   "/employees", data),
-  update:      (id, data) => request("PUT",    `/employees/${id}`, data),
-  toggleBlock: (id)       => request("PATCH",  `/employees/${id}/block`),
-  remove:      (id)       => request("DELETE", `/employees/${id}`),
-}
->>>>>>> 3924202a24e5cb3bac634045dd8f477585ee1aea
