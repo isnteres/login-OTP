@@ -13,6 +13,11 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'role',
+        'user_type',
+        'is_temporary_password',
+        'login_attempts',
+        'locked_until',
         'email_verified_at',
         'department_id',
         'employee_type_id',
@@ -24,27 +29,46 @@ class User extends Authenticatable
         'education',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $hidden = ['password'];
 
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'     => 'datetime',
+            'locked_until'          => 'datetime',
+            'password'              => 'hashed',
+            'is_temporary_password' => 'boolean',
         ];
     }
 
     // Relaciones
-    public function otpCodes()
+
+    public function employee()   { return $this->hasOne(Employee::class); }
+    public function otpCodes()   { return $this->hasMany(OtpCode::class); }
+    public function auditLogs()  { return $this->hasMany(AuditLog::class); }
+    public function enrollments(){ return $this->hasMany(Enrollment::class); }
+
+    // Helpers
+
+    public function isAdmin(): bool    { return $this->role === 'admin'; }
+    public function isEmployee(): bool { return $this->user_type === 'employee'; }
+    public function isClient(): bool   { return $this->user_type === 'client'; }
+
+    public function isLocked(): bool
     {
-        return $this->hasMany(OtpCode::class);
+        return $this->locked_until && $this->locked_until->isFuture();
     }
 
-    public function auditLogs()
+    public function incrementLoginAttempts(): void
     {
-        return $this->hasMany(AuditLog::class);
+        $this->increment('login_attempts');
+        if ($this->login_attempts >= 5)
+            $this->update(['locked_until' => now()->addMinutes(15)]);
+    }
+
+    public function resetLoginAttempts(): void
+    {
+        $this->update(['login_attempts' => 0, 'locked_until' => null]);
     }
 
     public function department()

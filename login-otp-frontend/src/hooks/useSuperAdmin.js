@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const SUPERADMIN_PASSWORD = "superadmin2024"
+const SUPERADMIN_PASSWORD = "superadmin2026"
 
 export function useSuperAdmin() {
   const [granted, setGranted] = useState({

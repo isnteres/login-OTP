@@ -3,41 +3,105 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
-use App\Models\OtpCode;
 use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    // =====================
-    //       REGISTRO
-    // =====================
+    public function __construct(private AuthService $auth) {}
 
-    // 1️⃣ Enviar OTP de registro
-    public function registerSendOtp(Request $request)
+    private function validate_(Request $request, array $rules, string $msg = 'Datos inválidos')
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email'
+        $v = Validator::make($request->all(), $rules);
+        if ($v->fails()) abort(response()->json(['message' => $msg], 422));
+    }
+
+    // Login
+
+    public function loginCredentials(Request $request)
+    {
+        $this->validate_($request, ['email' => 'required|email', 'password' => 'required']);
+
+        $result = $this->auth->attemptLogin($request->email, $request->password);
+        if (!$result['ok']) return response()->json($result, $result['status']);
+
+        $user = $result['user'];
+
+        if ($user->is_temporary_password) {
+            AuditLog::record('login_temporal', 'success', $user->email, $user->id);
+            return response()->json([
+                'isTemporary' => true,
+                'user'        => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
+            ]);
+        }
+
+        // Clientes: login directo sin OTP
+        if ($user->user_type === 'client') {
+            AuditLog::record('login_exitoso', 'success', $user->email, $user->id);
+            return response()->json([
+                'isTemporary' => false,
+                'requiresOtp' => false,
+                'user'        => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
+            ]);
+        }
+
+        // Empleados y admins: requieren OTP
+        $this->auth->sendOtp($user->email, 'login', $user->id);
+        AuditLog::record('login_otp_enviado', 'success', $user->email, $user->id);
+
+        return response()->json(['isTemporary' => false, 'requiresOtp' => true, 'message' => 'Credenciales correctas, revisá tu correo']);
+    }
+
+    public function loginVerifyOtp(Request $request)
+    {
+        $this->validate_($request, ['email' => 'required|email', 'otp' => 'required|digits:6']);
+
+        $email = $request->email;
+        $otp   = $this->auth->findOtp($email, 'login');
+
+        if (!$otp) {
+            AuditLog::record('login_otp_fallido', 'failed', $email, null, ['razon' => 'no encontrado']);
+            return response()->json(['message' => 'Código inválido'], 400);
+        }
+
+        $check = $this->auth->validateOtp($otp, $request->otp, $email, 'login_otp_fallido');
+        if (!$check['ok']) return response()->json(['message' => $check['message']], $check['status']);
+
+        $user = User::where('email', $email)->first();
+        AuditLog::record('login_exitoso', 'success', $email, $user->id);
+
+        return response()->json([
+            'message' => 'Bienvenido',
+            'user'    => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name, 'userType' => $user->user_type],
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $this->validate_($request, [
+            'email'       => 'required|email',
+            'newPassword' => ['required','min:8','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/','regex:/[!@#$%^&*]/'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Correo inválido'], 422);
-        }
+        if (!$this->auth->changePassword($request->email, $request->newPassword))
+            return response()->json(['message' => 'El correo no coincide con el registrado'], 400);
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente']);
+    }
+
+    // Registro
+
+    public function registerSendOtp(Request $request)
+    {
+        $this->validate_($request, ['email' => 'required|email'], 'Correo inválido');
 
         $email = $request->email;
 
-        // Verificar si el correo ya está registrado
         if (User::where('email', $email)->exists()) {
-            AuditLog::record('registro_intento', 'failed', $email, null, [
-                'razon' => 'correo ya registrado'
-            ]);
-
-            return response()->json([
-                'message' => 'Este correo ya está registrado'
-            ], 409);
+            AuditLog::record('registro_intento', 'failed', $email, null, ['razon' => 'correo ya registrado']);
+            return response()->json(['message' => 'Este correo ya está registrado'], 409);
         }
 
         // Invalidar OTPs anteriores del mismo correo
@@ -50,9 +114,9 @@ class AuthController extends Controller
         $code = rand(100000, 999999);
 
         OtpCode::create([
-            'email' => $email,
-            'code' => $code,
-            'type' => 'registro',
+            'email'      => $email,
+            'code'       => $code,
+            'type'       => 'registro',
             'expires_at' => now()->addMinutes(5),
         ]);
 
@@ -66,12 +130,11 @@ class AuthController extends Controller
         return response()->json(['message' => 'Código enviado correctamente']);
     }
 
-    // 2️⃣ Verificar OTP de registro
     public function registerVerifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'otp' => 'required|digits:6'
+            'otp'   => 'required|digits:6'
         ]);
 
         if ($validator->fails()) {
@@ -79,43 +142,24 @@ class AuthController extends Controller
         }
 
         $email = $request->email;
+        $otp   = $this->auth->findOtp($email, 'registro');
 
-        $otpRecord = OtpCode::where('email', $email)
-            ->where('code', $request->otp)
-            ->where('type', 'registro')
-            ->whereNull('used_at')
-            ->latest()
-            ->first();
-
-        if (!$otpRecord) {
-            AuditLog::record('registro_otp_fallido', 'failed', $email, null, [
-                'razon' => 'código no encontrado'
-            ]);
-
+        if (!$otp) {
+            AuditLog::record('registro_otp_fallido', 'failed', $email, null, ['razon' => 'no encontrado']);
             return response()->json(['message' => 'Código inválido'], 400);
         }
 
-        if ($otpRecord->isExpired()) {
-            AuditLog::record('registro_otp_fallido', 'failed', $email, null, [
-                'razon' => 'código expirado'
-            ]);
-
-            return response()->json(['message' => 'El código ha expirado'], 400);
-        }
-
-        // Marcar como usado
-        $otpRecord->update(['used_at' => now()]);
+        $check = $this->auth->validateOtp($otp, $request->otp, $email, 'registro_otp_fallido');
+        if (!$check['ok']) return response()->json(['message' => $check['message']], $check['status']);
 
         AuditLog::record('registro_otp_verificado', 'success', $email);
-
         return response()->json(['message' => 'Código verificado correctamente']);
     }
 
-    // 3️⃣ Crear contraseña y finalizar registro
     public function registerCreatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|min:8'
         ]);
 
@@ -140,130 +184,125 @@ class AuthController extends Controller
 
         // Crear el usuario
         $user = User::create([
-            'email' => $email,
-            'password' => Hash::make($request->password),
+            'email'             => $email,
+            'password'          => Hash::make($request->password),
             'email_verified_at' => now(),
         ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         AuditLog::record('registro_completado', 'success', $email, $user->id);
 
         return response()->json([
             'message' => 'Cuenta creada exitosamente',
-            'user' => ['id' => $user->id, 'email' => $user->email],
-            'token' => $token,
+            'user'    => ['id' => $user->id, 'email' => $user->email]
         ]);
     }
 
-    // =====================
+// =====================
 //        LOGIN
 // =====================
 
-    // 1️⃣ Verificar credenciales y enviar OTP
-    public function loginCredentials(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+// 1️⃣ Verificar credenciales y enviar OTP
+public function loginCredentials(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email'    => 'required|email',
+        'password' => 'required'
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Datos inválidos'], 422);
-        }
-
-        $email = $request->email;
-        $user = User::where('email', $email)->first();
-
-        // Verificar si el usuario existe y la contraseña es correcta
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            AuditLog::record('login_fallido', 'failed', $email, null, [
-                'razon' => 'credenciales incorrectas'
-            ]);
-
-            return response()->json([
-                'message' => 'Correo o contraseña incorrectos'
-            ], 401);
-        }
-
-        // Invalidar OTPs anteriores de login
-        OtpCode::where('email', $email)
-            ->where('type', 'login')
-            ->whereNull('used_at')
-            ->delete();
-
-        // Generar y guardar OTP
-        $code = rand(100000, 999999);
-
-        OtpCode::create([
-            'user_id' => $user->id,
-            'email' => $email,
-            'code' => $code,
-            'type' => 'login',
-            'expires_at' => now()->addMinutes(5),
-        ]);
-
-        // Enviar correo
-        Mail::raw("Tu código de acceso es: $code", function ($message) use ($email) {
-            $message->to($email)->subject('Código de acceso');
-        });
-
-        AuditLog::record('login_otp_enviado', 'success', $email, $user->id);
-
-        return response()->json([
-            'message' => 'Credenciales correctas, revisa tu correo'
-        ]);
+    if ($validator->fails()) {
+        return response()->json(['message' => 'Datos inválidos'], 422);
     }
 
-    // 2️⃣ Verificar OTP de login
-    public function loginVerifyOtp(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'otp' => 'required|digits:6'
+    $email = $request->email;
+    $user  = User::where('email', $email)->first();
+
+    // Verificar si el usuario existe y la contraseña es correcta
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        AuditLog::record('login_fallido', 'failed', $email, null, [
+            'razon' => 'credenciales incorrectas'
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Datos inválidos'], 422);
-        }
-
-        $email = $request->email;
-
-        $otpRecord = OtpCode::where('email', $email)
-            ->where('code', $request->otp)
-            ->where('type', 'login')
-            ->whereNull('used_at')
-            ->latest()
-            ->first();
-
-        if (!$otpRecord) {
-            AuditLog::record('login_otp_fallido', 'failed', $email, null, [
-                'razon' => 'código no encontrado'
-            ]);
-
-            return response()->json(['message' => 'Código inválido'], 400);
-        }
-
-        if ($otpRecord->isExpired()) {
-            AuditLog::record('login_otp_fallido', 'failed', $email, null, [
-                'razon' => 'código expirado'
-            ]);
-
-            return response()->json(['message' => 'El código ha expirado'], 400);
-        }
-
-        // Marcar OTP como usado
-        $otpRecord->update(['used_at' => now()]);
-
-        $user = User::where('email', $email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        AuditLog::record('login_exitoso', 'success', $email, $user->id);
 
         return response()->json([
-            'message' => 'Bienvenido',
-            'user' => ['id' => $user->id, 'email' => $user->email],
-            'token' => $token
-        ]);
+            'message' => 'Correo o contraseña incorrectos'
+        ], 401);
     }
+
+    // Invalidar OTPs anteriores de login
+    OtpCode::where('email', $email)
+        ->where('type', 'login')
+        ->whereNull('used_at')
+        ->delete();
+
+    // Generar y guardar OTP
+    $code = rand(100000, 999999);
+
+    OtpCode::create([
+        'user_id'    => $user->id,
+        'email'      => $email,
+        'code'       => $code,
+        'type'       => 'login',
+        'expires_at' => now()->addMinutes(5),
+    ]);
+
+    // Enviar correo
+    Mail::raw("Tu código de acceso es: $code", function ($message) use ($email) {
+        $message->to($email)->subject('Código de acceso');
+    });
+
+    AuditLog::record('login_otp_enviado', 'success', $email, $user->id);
+
+    return response()->json([
+        'message' => 'Credenciales correctas, revisa tu correo'
+    ]);
+}
+
+// 2️⃣ Verificar OTP de login
+public function loginVerifyOtp(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'otp'   => 'required|digits:6'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['message' => 'Datos inválidos'], 422);
+    }
+
+    $email = $request->email;
+
+    $otpRecord = OtpCode::where('email', $email)
+        ->where('code', $request->otp)
+        ->where('type', 'login')
+        ->whereNull('used_at')
+        ->latest()
+        ->first();
+
+    if (!$otpRecord) {
+        AuditLog::record('login_otp_fallido', 'failed', $email, null, [
+            'razon' => 'código no encontrado'
+        ]);
+
+        return response()->json(['message' => 'Código inválido'], 400);
+    }
+
+    if ($otpRecord->isExpired()) {
+        AuditLog::record('login_otp_fallido', 'failed', $email, null, [
+            'razon' => 'código expirado'
+        ]);
+
+        return response()->json(['message' => 'El código ha expirado'], 400);
+    }
+
+    // Marcar OTP como usado
+    $otpRecord->update(['used_at' => now()]);
+
+    $user = User::where('email', $email)->first();
+
+    AuditLog::record('login_exitoso', 'success', $email, $user->id);
+
+    return response()->json([
+        'message' => 'Bienvenido',
+        'user'    => ['id' => $user->id, 'email' => $user->email]
+    ]);
+}
 }
