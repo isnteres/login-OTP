@@ -11,6 +11,7 @@ import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
 import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
 import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
 import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
+import CursosPage               from "./operaciones/cursos/CursosPage"
 
 // ─── Placeholder temporal para módulos nuevos ────────────────────────────────
 // INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
@@ -23,15 +24,6 @@ function InicioPlaceholder() {
   )
 }
 
-// INTEGRANTE 3: reemplazar CursosPlaceholder por CursosPage cuando esté listo
-function CursosPlaceholder() {
-  return (
-    <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-      <h2 style={{ color: "white", marginBottom: "8px" }}>Cursos Online</h2>
-      <p>Módulo en construcción — Integrante 3</p>
-    </div>
-  )
-}
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Sidebar({ active, setActive, granted, onLogout }) {
@@ -182,7 +174,7 @@ function renderPage(active, setActive, superAdmin) {
     case "crm_comunidad":        return <ComunidadPage     setActive={setActive} />
 
     // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
-    case "operaciones_cursos":   return <CursosPlaceholder />         // INTEGRANTE 3: cambiar a <CursosPage />
+    case "operaciones_cursos":   return <CursosPage />
 
     // ── SISTEMA Y SEGURIDAD ────────────────────────────────────────────────
     case "sistema_analitica":    return <AnaliticaPage />
