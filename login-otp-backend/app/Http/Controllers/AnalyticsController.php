@@ -8,14 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AnalyticsController extends Controller
 {
-    /**
-     * POST /api/analytics/track
-     *
-     * El frontend envía un ping cada vez que el usuario carga una página.
-     * Se llama desde el hook useAnalyticsTracker que añadiremos al App.jsx.
-     *
-     * Body: { page, sessionId, userId? }
-     */
     public function track(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -43,17 +35,6 @@ class AnalyticsController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    /**
-     * GET /api/analytics?period=7d
-     *
-     * Devuelve todo lo que necesita el frontend:
-     *  - summary: totales generales
-     *  - traffic: vistas y sesiones por día
-     *  - topPages: páginas más visitadas
-     *  - devices: distribución por dispositivo
-     *
-     * period acepta: 7d | 30d | mes (mes actual)
-     */
     public function index(Request $request)
     {
         $period = $request->get('period', '7d');
