@@ -1,0 +1,45 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 11px;
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.cardLabel {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  margin: 0;
+}
+
+.cardIcon {
+  color: rgba(255, 255, 255, 0.15);
+  display: flex;
+}
+
+.cardValue {
+  color: white;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  line-height: 1;
+}
+
+.cardSub {
+  color: rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  margin: 0;
+}

@@ -1,0 +1,287 @@
+.page {
+  padding: 22px 26px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.loadingScreen {
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  padding: 80px;
+  font-family: "DM Sans", sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.titleIcon {
+  color: #818cf8;
+  display: flex;
+}
+
+.title {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  margin: 0;
+}
+
+.periodSelect {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-family: "DM Sans", sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+
+.periodSelect option {
+  background: #151d2e;
+}
+
+/* Stats */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 11px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.statTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.statLabel {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 12px;
+  margin: 0;
+}
+
+.statIcon {
+  color: rgba(255, 255, 255, 0.15);
+  display: flex;
+}
+
+.statValue {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 3px;
+  line-height: 1;
+}
+
+.statSub {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  margin: 0;
+}
+
+/* Gráfico tráfico */
+.chartBox {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.chartTitle {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+
+.chartLegend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+}
+
+.legendLine {
+  width: 20px;
+  height: 2px;
+  display: inline-block;
+  border-radius: 2px;
+}
+
+/* Tooltip */
+.tooltip {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.tooltipLabel {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  margin: 0 0 6px;
+}
+
+.tooltipValue {
+  font-size: 13px;
+  margin: 2px 0;
+  font-weight: 600;
+}
+
+/* Bottom grid */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.box {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 20px;
+}
+
+.boxTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.boxTitleIcon {
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+}
+
+.boxTitle {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.boxTitleRow .boxTitle {
+  margin: 0;
+}
+
+/* Páginas visitadas */
+.pagesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pageRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pageName {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  margin: 0;
+  width: 120px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.pageCount {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+  margin: 0;
+  width: 24px;
+  text-align: right;
+}
+
+/* Dispositivos */
+.devicesLayout {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.devicesList {
+  flex: 1;
+}
+
+.deviceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.deviceName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+
+.deviceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.deviceCount {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+}

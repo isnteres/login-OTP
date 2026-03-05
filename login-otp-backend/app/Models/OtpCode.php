@@ -11,6 +11,7 @@ class OtpCode extends Model
         'email',
         'code',
         'type',
+        'attempts',
         'expires_at',
         'used_at',
     ];
@@ -23,21 +24,25 @@ class OtpCode extends Model
         ];
     }
 
-    // Verifica si el código ya expiró
-    public function isExpired(): bool
-    {
-        return now()->isAfter($this->expires_at);
-    }
-
-    // Verifica si el código ya fue usado
-    public function isUsed(): bool
-    {
-        return !is_null($this->used_at);
-    }
-
-    // Relación
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at->isPast();
+    }
+
+    public function incrementAttempts(): bool
+    {
+        $this->increment('attempts');
+
+        if ($this->attempts >= 5) {
+            $this->update(['used_at' => now()]);
+            return false; 
+        }
+
+        return true;
     }
 }
