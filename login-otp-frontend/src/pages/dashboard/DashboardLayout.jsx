@@ -9,33 +9,27 @@ import {
   FiBookOpen,
 } from "react-icons/fi";
 
-import { useSuperAdmin } from "../../hooks/useSuperAdmin";
-import SuperAdminGate from "../../components/ui/SuperAdminGate";
-import PersonalPage from "./crm/personal/PersonalPage";
-import AuditoriaRrhhPage from "./crm/auditoria/AuditoriaRrhhPage";
-import AnaliticaPage from "./sistema/analitica/AnaliticaPage";
-import AuditoriaSistemaPage from "./sistema/auditoria/AuditoriaSistemaPage";
+import { useSuperAdmin }        from "../../hooks/useSuperAdmin"
+import SuperAdminGate           from "../../components/ui/SuperAdminGate"
+import PersonalPage             from "./crm/personal/PersonalPage"
+import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
+import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
+import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
+import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
+import CursosPage               from "./operaciones/cursos/CursosPage"
 
-// --- IMPORTACIONES DE LOS INTEGRANTES ---
-import InicioPage from './panel/InicioPage'; // Tu página (Int 4)
-import CursosAnalitica from "./sistema/analitica/CursosAnalitica"; // Página de Julio (Int 3)
-
-import {
-  DesempenoPage,
-  ObjetivosPage,
-  SoportePage,
-  ComunidadPage,
-} from "./Placeholders";
-
-// ─── Placeholders para módulos no terminados ────────────────────────────────
-function CursosPlaceholder() {
+// ─── Placeholder temporal para módulos nuevos ────────────────────────────────
+// INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
+function InicioPlaceholder() {
   return (
     <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-      <h2 style={{ color: "white", marginBottom: "8px" }}>Cursos Online</h2>
-      <p>Módulo en construcción — Integrante 3</p>
+      <h2 style={{ color: "white", marginBottom: "8px" }}>Panel Inicio</h2>
+      <p>Módulo en construcción — Integrante 4</p>
     </div>
-  );
+  )
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function Sidebar({ active, setActive, granted, onLogout }) {
   const [openPanel, setOpenPanel] = useState(true);
@@ -140,12 +134,22 @@ function renderPage(active, setActive, superAdmin) {
   switch (active) {
     case "panel_inicio":         return <InicioPage />;
     case "crm":
-    case "crm_rrhh_personal":    return <PersonalPage setActive={setActive} />;
-    case "operaciones_cursos":   return <CursosPlaceholder />;
-    case "operaciones_analitica": return <CursosAnalitica />; // Módulo de Julio
-    case "sistema_analitica":    return <AnaliticaPage />;
-    case "sistema_auditoria":    return <AuditoriaSistemaPage />;
-    default:                     return <InicioPage />;
+    case "crm_rrhh_personal":    return <PersonalPage      setActive={setActive} />
+    case "crm_rrhh_desempeno":   return <DesempenoPage     setActive={setActive} />
+    case "crm_rrhh_objetivos":   return <ObjetivosPage     setActive={setActive} />
+    case "crm_rrhh_auditoria":   return <AuditoriaRrhhPage setActive={setActive} />
+    case "crm_soporte":          return <SoportePage       setActive={setActive} />
+    case "crm_comunidad":        return <ComunidadPage     setActive={setActive} />
+
+    // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
+    case "operaciones_cursos":   return <CursosPage />
+
+    // ── SISTEMA Y SEGURIDAD ────────────────────────────────────────────────
+    case "sistema_analitica":    return <AnaliticaPage />
+    case "sistema_auditoria":    return <AuditoriaSistemaPage />
+
+    // ── DEFAULT ────────────────────────────────────────────────────────────
+    default:                     return <InicioPlaceholder />          // INTEGRANTE 4: cambiar a <InicioPage />
   }
 }
 
