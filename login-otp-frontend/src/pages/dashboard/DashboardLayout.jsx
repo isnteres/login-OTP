@@ -9,27 +9,19 @@ import {
   FiBookOpen,
 } from "react-icons/fi";
 
-import { useSuperAdmin }        from "../../hooks/useSuperAdmin"
-import SuperAdminGate           from "../../components/ui/SuperAdminGate"
-import PersonalPage             from "./crm/personal/PersonalPage"
-import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
-import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
-import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
-import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
-import CursosPage               from "./operaciones/cursos/CursosPage"
+// --- IMPORTS BASE DEL SISTEMA ---
+import { useSuperAdmin } from "../../hooks/useSuperAdmin";
+import SuperAdminGate from "../../components/ui/SuperAdminGate";
+import PersonalPage from "./crm/personal/PersonalPage";
+import AuditoriaRrhhPage from "./crm/auditoria/AuditoriaRrhhPage";
+import AnaliticaPage from "./sistema/analitica/AnaliticaPage";
+import AuditoriaSistemaPage from "./sistema/auditoria/AuditoriaSistemaPage";
+import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders";
 
-// ─── Placeholder temporal para módulos nuevos ────────────────────────────────
-// INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
-function InicioPlaceholder() {
-  return (
-    <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-      <h2 style={{ color: "white", marginBottom: "8px" }}>Panel Inicio</h2>
-      <p>Módulo en construcción — Integrante 4</p>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
+// --- IMPORTS DE INTEGRANTES (COEXISTENCIA TOTAL) ---
+import InicioPage from './panel/InicioPage'; // Adrian (Int 4)
+import CursosPage from "./operaciones/cursos/CursosPage"; // Dayana
+import CursosAnalitica from "./sistema/analitica/CursosAnalitica"; // Julio (Int 3)
 
 function Sidebar({ active, setActive, granted, onLogout }) {
   const [openPanel, setOpenPanel] = useState(true);
@@ -83,20 +75,22 @@ function Sidebar({ active, setActive, granted, onLogout }) {
     <aside style={{ width: "220px", minHeight: "100vh", background: "rgba(8,12,25,0.98)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", flexShrink: 0 }}>
       <div style={{ padding: "18px 14px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <p style={{ color: "white", fontWeight: "700", fontSize: "13px", margin: 0 }}>Dashboard</p>
-        <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px", margin: 0 }}>Panel de Administración</p>
+        <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px", margin: 0 }}>Maquimpower Admin</p>
       </div>
 
       <nav style={{ padding: "4px 8px", flex: 1 }}>
-        {/* PANEL */}
         <SectionHeader label="Panel" isOpen={openPanel} toggle={() => setOpenPanel(p => !p)} />
         {openPanel && <NavItem id="panel_inicio" label="Inicio" icon={<FiHome size={14} />} />}
 
-        {/* COMERCIAL */}
         <SectionHeader label="Comercial (CRM)" isOpen={openCRM} toggle={() => setOpenCRM(p => !p)} />
-        {openCRM && <NavItem id="crm" label="CRM" icon={<FiUsers size={14} />} />}
+        {openCRM && (
+          <>
+            <NavItem id="crm_rrhh_personal" label="Personal" icon={<FiUsers size={14} />} />
+            <NavItem id="crm_soporte" label="Soporte" icon={<FiActivity size={14} />} />
+          </>
+        )}
 
-        {/* OPERACIONES / PROYECTOS (Aquí unimos tu Nav con el de Julio) */}
-        <SectionHeader label="Operaciones / Proyectos" isOpen={openOps} toggle={() => setOpenOps(p => !p)} />
+        <SectionHeader label="Operaciones" isOpen={openOps} toggle={() => setOpenOps(p => !p)} />
         {openOps && (
           <>
             <NavItem id="operaciones_cursos" label="Cursos Online" icon={<FiBookOpen size={14} />} />
@@ -104,8 +98,7 @@ function Sidebar({ active, setActive, granted, onLogout }) {
           </>
         )}
 
-        {/* SISTEMA Y SEGURIDAD */}
-        <SectionHeader label="Sistema y Seguridad" isOpen={openSist} toggle={() => setOpenSist(p => !p)} />
+        <SectionHeader label="Sistema" isOpen={openSist} toggle={() => setOpenSist(p => !p)} />
         {openSist && (
           <>
             <NavItem id="sistema_analitica" label="Analítica Web" icon={<FiActivity size={14} />} needsAuth />
@@ -124,32 +117,32 @@ function Sidebar({ active, setActive, granted, onLogout }) {
 }
 
 function renderPage(active, setActive, superAdmin) {
-  if (active === "sistema_analitica_gate") {
-    return <SuperAdminGate verify={superAdmin.verify} onSuccess={() => { superAdmin.grant("sistema_analitica"); setActive("sistema_analitica"); }} />;
-  }
-  if (active === "sistema_auditoria_gate") {
-    return <SuperAdminGate verify={superAdmin.verify} onSuccess={() => { superAdmin.grant("sistema_auditoria"); setActive("sistema_auditoria"); }} />;
+  if (active.includes("_gate")) {
+    const target = active.replace("_gate", "");
+    return <SuperAdminGate verify={superAdmin.verify} onSuccess={() => { superAdmin.grant(target); setActive(target) }} />;
   }
 
   switch (active) {
     case "panel_inicio":         return <InicioPage />;
+    
+    // CRM
     case "crm":
-    case "crm_rrhh_personal":    return <PersonalPage      setActive={setActive} />
-    case "crm_rrhh_desempeno":   return <DesempenoPage     setActive={setActive} />
-    case "crm_rrhh_objetivos":   return <ObjetivosPage     setActive={setActive} />
-    case "crm_rrhh_auditoria":   return <AuditoriaRrhhPage setActive={setActive} />
-    case "crm_soporte":          return <SoportePage       setActive={setActive} />
-    case "crm_comunidad":        return <ComunidadPage     setActive={setActive} />
-
-    // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
-    case "operaciones_cursos":   return <CursosPage />
-
-    // ── SISTEMA Y SEGURIDAD ────────────────────────────────────────────────
-    case "sistema_analitica":    return <AnaliticaPage />
-    case "sistema_auditoria":    return <AuditoriaSistemaPage />
-
-    // ── DEFAULT ────────────────────────────────────────────────────────────
-    default:                     return <InicioPlaceholder />          // INTEGRANTE 4: cambiar a <InicioPage />
+    case "crm_rrhh_personal":    return <PersonalPage setActive={setActive} />;
+    case "crm_rrhh_desempeno":   return <DesempenoPage setActive={setActive} />;
+    case "crm_rrhh_objetivos":   return <ObjetivosPage setActive={setActive} />;
+    case "crm_rrhh_auditoria":   return <AuditoriaRrhhPage setActive={setActive} />;
+    case "crm_soporte":          return <SoportePage setActive={setActive} />;
+    case "crm_comunidad":        return <ComunidadPage setActive={setActive} />;
+    
+    // OPERACIONES
+    case "operaciones_cursos":   return <CursosPage />;
+    case "operaciones_analitica": return <CursosAnalitica />;
+    
+    // SISTEMA
+    case "sistema_analitica":    return <AnaliticaPage />;
+    case "sistema_auditoria":    return <AuditoriaSistemaPage />;
+    
+    default:                     return <InicioPage />;
   }
 }
 
@@ -159,13 +152,16 @@ export default function DashboardLayout({ onLogout }) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "linear-gradient(135deg,#0c1220,#111827,#0c1220)" }}>
+      {/* Efectos de fondo */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "absolute", width: "500px", height: "500px", borderRadius: "50%", background: "rgba(99,102,241,0.05)", filter: "blur(120px)", top: "-100px", left: "120px" }} />
         <div style={{ position: "absolute", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(16,185,129,0.04)", filter: "blur(100px)", bottom: 0, right: "150px" }} />
       </div>
+
       <div style={{ position: "sticky", top: 0, height: "100vh", zIndex: 10 }}>
         <Sidebar active={active} setActive={setActive} granted={superAdmin.isGranted} onLogout={onLogout} />
       </div>
+
       <main style={{ flex: 1, overflowY: "auto", position: "relative", zIndex: 1 }}>
         {renderPage(active, setActive, superAdmin)}
       </main>
