@@ -11,6 +11,8 @@ use App\Http\Controllers\AuditRrhhController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CourseClickController;
 
 Route::options('/{any}', function () {
     return response()->json([], 200);
@@ -64,6 +66,12 @@ Route::get('/audit/logs', [AuditController::class, 'logs']);
 Route::get('/audit/rrhh/duplicates',   [AuditRrhhController::class, 'index']);
 Route::post('/analytics/track',        [AnalyticsController::class, 'track']);
 Route::get('/analytics',               [AnalyticsController::class, 'index']);
+
+
+
+// Analítica de clicks en cursos (landing)
+Route::post('/course-clicks', [CourseClickController::class, 'store']);
+Route::get('/course-clicks',  [CourseClickController::class, 'index']);
 
 // ========================================================
 // MÓDULO CRM - GESTIÓN INTERNA (RRHH) - PROTEGIDO
