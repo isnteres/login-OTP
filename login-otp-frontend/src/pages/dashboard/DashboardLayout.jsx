@@ -16,6 +16,7 @@ import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
 import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
 import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
 import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
+import InicioPage from './panel/InicioPage';
 import CursosAnalitica from "./sistema/analitica/CursosAnalitica";
 import CursosPage               from "./operaciones/cursos/CursosPage"
 
@@ -320,7 +321,7 @@ function renderPage(active, setActive, superAdmin) {
   switch (active) {
     // ── PANEL ──────────────────────────────────────────────────────────────
     case "panel_inicio":
-      return <InicioPlaceholder />; // INTEGRANTE 4: cambiar a <InicioPage />
+      return <InicioPage />;
 
     // ── COMERCIAL (CRM) ────────────────────────────────────────────────────
     case "crm":
