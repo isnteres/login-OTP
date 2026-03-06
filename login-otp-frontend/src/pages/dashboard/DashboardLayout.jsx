@@ -9,21 +9,15 @@ import {
   FiBookOpen,
 } from "react-icons/fi";
 
-import { useSuperAdmin } from "../../hooks/useSuperAdmin";
-import SuperAdminGate from "../../components/ui/SuperAdminGate";
-import PersonalPage from "./crm/personal/PersonalPage";
-import AuditoriaRrhhPage from "./crm/auditoria/AuditoriaRrhhPage";
-import AnaliticaPage from "./sistema/analitica/AnaliticaPage";
-import AuditoriaSistemaPage from "./sistema/auditoria/AuditoriaSistemaPage";
-// Agrega este import arriba
+import { useSuperAdmin }        from "../../hooks/useSuperAdmin"
+import SuperAdminGate           from "../../components/ui/SuperAdminGate"
+import PersonalPage             from "./crm/personal/PersonalPage"
+import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
+import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
+import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
+import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
 import CursosAnalitica from "./sistema/analitica/CursosAnalitica";
-
-import {
-  DesempenoPage,
-  ObjetivosPage,
-  SoportePage,
-  ComunidadPage,
-} from "./Placeholders";
+import CursosPage               from "./operaciones/cursos/CursosPage"
 
 // ─── Placeholder temporal para módulos nuevos ────────────────────────────────
 // INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
@@ -344,11 +338,9 @@ function renderPage(active, setActive, superAdmin) {
       return <ComunidadPage setActive={setActive} />;
 
     // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
-    case "operaciones_cursos":
-      return <CursosPlaceholder />; // INTEGRANTE 3: cambiar a <CursosPage />
 
-    // case "operaciones_cursos":
-    //   return <CursosPage />; // reemplaza CursosPlaceholder
+    case "operaciones_cursos":
+       return <CursosPage />; 
     case "operaciones_analitica":
       return <CursosAnalitica />; // nuevo
 
