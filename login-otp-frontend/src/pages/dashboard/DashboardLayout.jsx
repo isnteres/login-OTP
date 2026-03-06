@@ -11,19 +11,9 @@ import AuditoriaRrhhPage        from "./crm/auditoria/AuditoriaRrhhPage"
 import AnaliticaPage            from "./sistema/analitica/AnaliticaPage"
 import AuditoriaSistemaPage     from "./sistema/auditoria/AuditoriaSistemaPage"
 import { DesempenoPage, ObjetivosPage, SoportePage, ComunidadPage } from "./Placeholders"
+import InicioPage               from './panel/InicioPage'
 
 // ─── Placeholder temporal para módulos nuevos ────────────────────────────────
-// INTEGRANTE 4: reemplazar InicioPlaceholder por InicioPage cuando esté listo
-function InicioPlaceholder() {
-  return (
-    <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
-      <h2 style={{ color: "white", marginBottom: "8px" }}>Panel Inicio</h2>
-      <p>Módulo en construcción — Integrante 4</p>
-    </div>
-  )
-}
-
-// INTEGRANTE 3: reemplazar CursosPlaceholder por CursosPage cuando esté listo
 function CursosPlaceholder() {
   return (
     <div style={{ padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif" }}>
@@ -127,7 +117,7 @@ function Sidebar({ active, setActive, granted, onLogout }) {
           <NavItem id="operaciones_cursos" label="Cursos Online" icon={<FiBookOpen size={14} />} />
         )}
 
-        {/* SISTEMA Y SEGURIDAD */}
+       {/* SISTEMA Y SEGURIDAD */}
         <SectionHeader label="Sistema y Seguridad" isOpen={openSist} toggle={() => setOpenSist(p => !p)} />
         {openSist && (
           <>
@@ -161,6 +151,8 @@ function Sidebar({ active, setActive, granted, onLogout }) {
 
 // Renderizado de páginas
 function renderPage(active, setActive, superAdmin) {
+  console.log("Intentando renderizar la pestaña:", active); // <-- Nuestro espía en la consola
+
   if (active === "sistema_analitica_gate") {
     return <SuperAdminGate verify={superAdmin.verify} onSuccess={() => { superAdmin.grant("sistema_analitica"); setActive("sistema_analitica") }} />
   }
@@ -170,7 +162,9 @@ function renderPage(active, setActive, superAdmin) {
 
   switch (active) {
     // ── PANEL ──────────────────────────────────────────────────────────────
-    case "panel_inicio":          return <InicioPlaceholder />        // INTEGRANTE 4: cambiar a <InicioPage />
+    case "panel_inicio":         
+        console.log("¡Cargando InicioPage!"); 
+        return <InicioPage />;
 
     // ── COMERCIAL (CRM) ────────────────────────────────────────────────────
     case "crm":
@@ -182,14 +176,16 @@ function renderPage(active, setActive, superAdmin) {
     case "crm_comunidad":        return <ComunidadPage     setActive={setActive} />
 
     // ── OPERACIONES / PROYECTOS ────────────────────────────────────────────
-    case "operaciones_cursos":   return <CursosPlaceholder />         // INTEGRANTE 3: cambiar a <CursosPage />
+    case "operaciones_cursos":   return <CursosPlaceholder />
 
     // ── SISTEMA Y SEGURIDAD ────────────────────────────────────────────────
     case "sistema_analitica":    return <AnaliticaPage />
     case "sistema_auditoria":    return <AuditoriaSistemaPage />
 
     // ── DEFAULT ────────────────────────────────────────────────────────────
-    default:                     return <InicioPlaceholder />          // INTEGRANTE 4: cambiar a <InicioPage />
+    default:                     
+        console.log("Cayó en default, cargando InicioPage");
+        return <InicioPage />;
   }
 }
 
