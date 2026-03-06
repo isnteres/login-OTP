@@ -11,7 +11,6 @@ use App\Http\Controllers\AuditRrhhController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseClickController;
 
 Route::options('/{any}', function () {
