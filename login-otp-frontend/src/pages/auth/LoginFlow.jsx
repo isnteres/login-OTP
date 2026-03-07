@@ -1,14 +1,3 @@
-/**
- * LoginFlow.jsx
- * Ubicación: src/pages/auth/LoginFlow.jsx
- *
- * Lógica:
- *  1. Email + contraseña → POST /api/login/credentials
- *     a. isTemporary = true  → dashboard con mustChangePassword
- *     b. isTemporary = false → paso OTP (el backend ya envió el código al correo)
- *  2. OTP → POST /api/login/verify-otp → dashboard
- */
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { FiMail, FiLock, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"
@@ -34,16 +23,27 @@ export default function LoginFlow() {
 
     try {
       setIsLoading(true)
-
-      console.log("Intentando login con:", email);
-      localStorage.removeItem("user"); // 👈 Limpia usuario anterior
+      localStorage.removeItem("user")
 
       const res = await authService.loginCredentials(email, password)
+
+      // Contraseña temporal → cambiar antes de entrar
       if (res.isTemporary) {
+        localStorage.setItem("user", JSON.stringify(res.user))
         navigate("/dashboard", { state: { mustChangePassword: true, userEmail: email } })
-      } else {
-        setStep("otp")
+        return
       }
+
+      // Cliente → sin OTP, directo a la landing
+      if (res.requiresOtp === false) {
+        localStorage.setItem("user", JSON.stringify(res.user))
+        navigate("/")
+        return
+      }
+
+      // Empleado / Admin → requiere OTP
+      setStep("otp")
+
     } catch (err) {
       setError(err.message || "Correo o contraseña incorrectos")
     } finally {
@@ -51,7 +51,7 @@ export default function LoginFlow() {
     }
   }
 
-  // ── Step 2: OTP ─────────────────────────────────────────────────────────────
+  // ── Step 2: OTP — solo empleados y admins ───────────────────────────────────
   const handleOtp = async () => {
     setError("")
     if (otp.length !== 6) { setError("Ingresa el código completo de 6 dígitos"); return }
@@ -69,14 +69,15 @@ export default function LoginFlow() {
 
   return (
     <div className="auth-container">
-      <div className="bg-gradient" />
+      <div className="bg-gradient"></div>
       <div className="bg-orbs">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
       </div>
 
       <div className="auth-card">
+
         {error && (
           <div style={{
             background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)",
@@ -101,55 +102,37 @@ export default function LoginFlow() {
               <div className="input-group">
                 <label>Correo electrónico</label>
                 <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  className="input-field"
+                  type="email" placeholder="tu@email.com" className="input-field"
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError("") }}
-                  disabled={isLoading}
-                  autoFocus
+                  disabled={isLoading} autoFocus
                 />
               </div>
 
               <div className="input-group">
-  <label>Contraseña</label>
-
-  <div style={{ position: "relative" }}>
-    <input
-      type={showPassword ? "text" : "password"}
-      placeholder="••••••••"
-      className="input-field"
-      value={password}
-      onChange={e => { setPassword(e.target.value); setError("") }}
-      onKeyDown={e => e.key === "Enter" && handleCredentials()}
-      disabled={isLoading}
-      style={{ paddingRight: "40px" }}
-    />
-
-    <button
-      type="button"
-      onClick={() => setShowPassword(s => !s)}
-      style={{
-        position: "absolute",
-        right: "12px",
-        top: "50%",
-        transform: "translateY(-50%)",
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-        color: "rgba(255,255,255,0.5)",
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-    </button>
-  </div>
-</div>
+                <label>Contraseña</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••" className="input-field"
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); setError("") }}
+                    onKeyDown={e => e.key === "Enter" && handleCredentials()}
+                    disabled={isLoading}
+                    style={{ paddingRight: "40px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(s => !s)}
+                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)" }}
+                  >
+                    {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                  </button>
+                </div>
+              </div>
 
               <button
-                onClick={handleCredentials}
-                className="btn-primary"
+                onClick={handleCredentials} className="btn-primary"
                 disabled={isLoading || !email || !password}
                 style={{ opacity: isLoading || !email || !password ? 0.6 : 1 }}
               >
@@ -162,7 +145,7 @@ export default function LoginFlow() {
             </div>
           )}
 
-          {/* ══ STEP 2: OTP ══ */}
+          {/* ══ STEP 2: OTP — solo empleados y admins ══ */}
           {step === "otp" && (
             <div className="step-content fade-in">
               <div className="icon-wrapper">
@@ -178,8 +161,7 @@ export default function LoginFlow() {
               </div>
 
               <button
-                onClick={handleOtp}
-                className="btn-primary"
+                onClick={handleOtp} className="btn-primary"
                 disabled={isLoading || otp.length !== 6}
                 style={{ opacity: isLoading || otp.length !== 6 ? 0.6 : 1 }}
               >

@@ -51,7 +51,7 @@ class EmployeeService
             'name'                  => $data['name'],
             'email'                 => $email,
             'password'              => Hash::make($tempPassword),
-            'role'                  => 'employee',
+            'role'                  => $data['type'],
             'user_type'             => 'employee',
             'is_temporary_password' => true,
             'email_verified_at'     => now(),
@@ -92,7 +92,15 @@ class EmployeeService
             'education'  => $data['education']   ?? $employee->education,
         ]);
 
-        if (!empty($data['name'])) $employee->user->update(['name' => $data['name']]);
+        // Si cambia el tipo, actualizar también el role del user
+        if (!empty($data['type'])) {
+            $employee->user->update([
+                'name' => $data['name'] ?? $employee->user->name,
+                'role' => $data['type'],
+            ]);
+        } elseif (!empty($data['name'])) {
+            $employee->user->update(['name' => $data['name']]);
+        }
 
         AuditLog::record('employee_updated', 'success', $employee->user->email, $employee->user_id);
 
