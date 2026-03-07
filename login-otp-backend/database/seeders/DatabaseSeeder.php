@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             CourseSeeder::class,  // ← agrega esta línea
+            DashboardSeeder::class,
         ]);
     }
 }

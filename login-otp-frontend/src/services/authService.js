@@ -17,19 +17,26 @@ const request = async (method, endpoint, body) => {
 const post = (endpoint, body) => request("POST", endpoint, body)
 
 export const authService = {
+  // Login
   loginCredentials: (email, password) =>
     post("/login/credentials", { email, password }),
 
   loginVerifyOtp: async (email, otp) => {
-  const data = await post("/login/verify-otp", { email, otp });
-
-  console.log("Usuario que viene del backend:", data.user);
-
-  localStorage.setItem("user", JSON.stringify(data.user));
-
-  return data;
-},
+    const data = await post("/login/verify-otp", { email, otp })
+    localStorage.setItem("user", JSON.stringify(data.user))
+    return data
+  },
 
   changePassword: (email, newPassword) =>
     post("/auth/change-password", { email, newPassword }),
+
+  // Registro
+  registerSendOtp: (email) =>
+    post("/register/send-otp", { email }),
+
+  registerVerifyOtp: (email, otp) =>
+    post("/register/verify-otp", { email, otp }),
+
+  registerCreatePassword: (email, password) =>
+    post("/register/create-password", { email, password }),
 }
